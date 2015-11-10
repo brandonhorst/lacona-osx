@@ -1,0 +1,51 @@
+{
+  "name": "lacona-command-osx",
+  "version": "0.0.1",
+  "description": "Lacona Extensions for OSX, tied into the global-context hosted API",
+  "main": "lib/index.js",
+  "scripts": {
+    "pretest": "babel test --out-dir tmp",
+    "test": "mocha tmp",
+    "build": "babel src --out-dir lib",
+    "validate": "npm run build && npm test",
+    "prepublish": "npm run clean && npm run build",
+    "clean": "rimraf lib tmp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lacona/lacona-command-osx.git"
+  },
+  "keywords": [
+    "Lacona",
+    "Source",
+    "spotlight",
+    "mdfind",
+    "app",
+    "file",
+    "osx",
+    "search"
+  ],
+  "author": "@brandonhorst",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lacona/lacona-command-osx/issues"
+  },
+  "homepage": "https://github.com/lacona/lacona-command-osx",
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "chai": "^3.2.0",
+    "mocha": "^2.3.2",
+    "rimraf": "^2.4.3",
+    "sinon": "^1.16.1"
+  },
+  "dependencies": {
+    "lacona-phrase": "^0.7.0",
+    "lacona-phrase-application": "0.0.1",
+    "lacona-phrase-email": "0.0.1",
+    "lacona-phrase-file": "0.0.1",
+    "lacona-phrase-phonenumber": "0.0.1",
+    "lacona-phrase-system-state": "0.0.1",
+    "lacona-phrase-url": "0.0.1",
+    "lodash": "^3.10.1"
+  }
+}
