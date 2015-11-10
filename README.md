@@ -1,2 +1,2 @@
-# LaconaSource-Spotlight
-Lacona Source for spotlight
+# lacona-command-osx
+Extensions for Lacona dealing with OSX-specific functionality. 
