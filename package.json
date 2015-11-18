@@ -41,6 +41,7 @@
   "dependencies": {
     "lacona-phrase": "^0.7.0",
     "lacona-phrase-application": "0.0.1",
+    "lacona-phrase-datetime": "^0.3.1",
     "lacona-phrase-email": "0.0.1",
     "lacona-phrase-file": "0.0.1",
     "lacona-phrase-phonenumber": "0.0.1",

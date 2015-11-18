@@ -1,76 +1,101 @@
 /** @jsx createElement */
 
 import _ from 'lodash'
+import {Contacts, possibleNameCombinations, Spread} from './contact-sources'
 import {createElement, Phrase, Source} from 'lacona-phrase'
-import BaseEmail from 'lacona-phrase-email'
-import BasePhoneNumber from 'lacona-phrase-phonenumber'
+import {Date as DatePhrase} from 'lacona-phrase-datetime'
+import {dateMap} from './constant-maps'
+import Email from 'lacona-phrase-email'
+import PhoneNumber from 'lacona-phrase-phonenumber'
 
-class Emails extends Source {
-  onCreate () {
-    this.replaceData([])
-    global.allEmails((err, emails) => {
-      this.replaceData(emails)
+function elementsFromContacts(data) {
+  const elements = _.chain(data)
+    .map(({firstName, middleName, lastName, nickname, company, value, label}) => {
+      const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname, company})
+      const items = _.map(possibleNames, text => ({text, value}))
+
+
+      return <list items={items} limit={1} />
     })
-  }
+    .value()
+
+  return (
+    <argument text='contact' showForEmpty={true}>
+      <choice limit={10}>
+        {elements}
+      </choice>
+    </argument>
+  )
 }
 
-class PhoneNumbers extends Source {
-  onCreate () {
-    this.replaceData([])
-    global.allPhoneNumbers((err, numbers) => {
-      this.replaceData(numbers)
-    })
-  }
-}
-
-export class Email extends Phrase {
+class ContactPhrase extends Phrase {
   describe () {
-    const contacts = _.chain(this.sources.emails.data) // TODO this is WET
-      .map(({firstName, lastName, middleName, nickname, email}) => {
-        return {
-          text: `${firstName} ${lastName}`,
-          value: email
-        }
+    return elementsFromContacts(this.sources.contacts.data)
+  }
+}
+
+export class ContactEmail extends ContactPhrase {
+  source () {
+    return {
+      contacts: (
+        <Spread spreadKey='emails' dataKeys={['firstName', 'lastName', 'middleName', 'nickname', 'company']}>
+          <Contacts />
+        </Spread>
+      )
+    }
+  }
+}
+ContactEmail.extends = [Email]
+
+export class ContactPhoneNumber extends ContactPhrase {
+  source () {
+    return {
+      contacts: (
+        <Spread spreadKey='phoneNumbers' dataKeys={['firstName', 'lastName', 'middleName', 'nickname', 'company']}>
+          <Contacts />
+        </Spread>
+      )
+    }
+  }
+}
+ContactPhoneNumber.extends = [PhoneNumber]
+
+export class ContactDate extends Phrase {
+  source () {
+    return {
+      contacts: (
+        <Spread spreadKey='dates' dataKeys={['firstName', 'middleName', 'lastName', 'nickname']}>
+          <Contacts />
+        </Spread>
+      )
+    }
+  }
+
+  describe () {
+    const items = _.chain(this.sources.contacts.data)
+      .map(({firstName, middleName, lastName, nickname, company, value, label}) => {
+        const dateNames = dateMap[label] || [label]
+        const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname})
+        return (
+          <choice limit={1} value={value}>
+            {_.map(dateNames, dateName => {
+              return _.map(possibleNames, possibleName => <literal text={`${possibleName}'s ${dateName}`} />)
+            })}
+          </choice>
+        )
       })
       .value()
 
     return (
-      <argument text='contact' showForEmpty={true}>
-        <list items={contacts} limit={10} fuzzy={true} />
-      </argument>
+      <sequence>
+        <literal text='on ' category='conjunction' optional={true} limited={true} prefered={false} />
+        <argument text='birthday'>
+          <choice>
+            {items}
+          </choice>
+        </argument>
+      </sequence>
     )
   }
-
-  source () {
-    return {
-      emails: <Emails />
-    }
-  }
 }
-Email.extends = [BaseEmail]
-
-export class PhoneNumber extends Phrase {
-  describe () {
-    const contacts = _.chain(this.sources.phoneNumbers.data)
-      .map(({firstName, lastName, middleName, nickname, email}) => {
-        return {
-          text: `${firstName} ${lastName}`,
-          value: email
-        }
-      })
-      .value()
-
-    return (
-      <argument text='contact' showForEmpty={true}>
-        <list items={contacts} limit={10} fuzzy={true} />
-      </argument>
-    )
-  }
-
-  source () {
-    return {
-      phoneNumbers: <PhoneNumbers />
-    }
-  }
-}
-PhoneNumber.extends = [BasePhoneNumber]
+ContactDate.extends = [DatePhrase]
