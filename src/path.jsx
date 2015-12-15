@@ -29,21 +29,23 @@ function processChildren (children) {
 
 class DemoDirectory extends Source {
   onCreate () {
-    const components = this.props.path.split('/')
-    console.log(components)
-    let contents = processChildren(global.config.rootFiles)
-    for (let component in components.slice(1)) {
-      const theDir = _.find(contents, child => child.name === component)
-      if (theDir) {
-        contents = processChildren(theDir.children)
-      } else {
-        this.replaceData([])
-        return
-      }
-    }
-
-    this.replaceData(contents)
+    this.replaceData(global.config.rootFiles[this.props.path])
   }
+  //   const components = this.props.path.split('/')
+  //   console.log(components)
+  //   let contents = processChildren(global.config.rootFiles)
+  //   for (let component in components.slice(1)) {
+  //     const theDir = _.find(contents, child => child.name === component)
+  //     if (theDir) {
+  //       contents = processChildren(theDir.children)
+  //     } else {
+  //       this.replaceData([])
+  //       return
+  //     }
+  //   }
+  //
+  //   this.replaceData(contents)
+  // }
 }
 
 class TrueFile extends Phrase {
@@ -80,7 +82,7 @@ class TrueFile extends Phrase {
         return (
           <sequence>
             <literal text={val} value={val} id='prefix' />
-            <TrueFile directory={newDir} id='suffix'/>
+            <TrueFile directory={`${newDir}/`} id='suffix'/>
           </sequence>
         )
       })
@@ -139,7 +141,7 @@ export default class Path extends Phrase {
         <choice>
           <sequence>
             <literal text='/' value='/' id='prefix' />
-            <TrueFile directory='' id='suffix' />
+            <TrueFile directory='/' id='suffix' />
           </sequence>
           <sequence>
             <literal text='~/' value={`${this.sources.userHome.data}/`} id='prefix' />
