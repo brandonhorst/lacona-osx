@@ -1,13 +1,27 @@
 /** @jsx createElement */
-import {createElement, Phrase} from 'lacona-phrase'
+import { createElement, Phrase, Source } from 'lacona-phrase'
 import SpotlightFetch from './spotlight-fetch'
 import BaseFile from 'lacona-phrase-file'
 import {dirname, basename} from 'path'
 
+class DemoFiles extends Source {
+  onCreate () {
+    this.replaceData(global.config.spotlightFiles)
+  }
+  
+  fetch () {}
+}
+
 export default class File extends Phrase {
   source () {
-    return {
-      files: <SpotlightFetch attributes={['kMDItemPath', 'kMDItemContentType']} limit={10} />
+    if (process.env.LACONA_ENV === 'demo') {
+      return {
+        files: <DemoFiles />
+      }
+    } else {
+      return {
+        files: <SpotlightFetch attributes={['kMDItemPath', 'kMDItemContentType']} limit={10} />
+      }
     }
   }
 

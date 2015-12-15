@@ -1,40 +1,59 @@
 /** @jsx createElement */
 import Application from 'lacona-phrase-application'
-import {createElement, Phrase} from 'lacona-phrase'
+import {createElement, Phrase, Source} from 'lacona-phrase'
 import Spotlight from './spotlight'
 
-// function close(bundleId) {
-//   global.closeAllWindowsInApp(bundleId, () => {})
-// }
-//
-// function open(bundleId) {
-//   global.launchApp(bundleId, () => {})
-// }
-//
-// function quit(bundleId) {
-//   global.quitApp(bundleId, () => {})
-// }
-//
-// function hide(bundleId) {
-//   global.hideApp(bundleId, () => {})
-// }
+class AppObject {
+  constructor({kMDItemCFBundleIdentifier, kMDItemDisplayName, kMDItemPath}) {
+    this.bundleId = kMDItemCFBundleIdentifier
+    this.name = kMDItemDisplayName
+  }
+
+  open () {
+    global.launchApplication(this.bundleId, () => {})
+  }
+
+  openURL (url) {
+    global.openURLInApplication(rl, this.bundleId)
+  }
+
+  openFile (file) {
+    global.openURLInApplication(file, this.bundleId)
+  }
+}
+
+function toObject (obj) {
+  return new AppObject(obj)
+}
+
+class DemoApps extends Source {
+  onCreate () {
+    this.replaceData(global.config.apps)
+  }
+}
 
 export default class App extends Phrase {
   source() {
-    return {apps: <Spotlight directories={['/Applications']} query="kMDItemContentTypeTree == 'com.apple.application'" attributes={['kMDItemDisplayName', 'kMDItemCFBundleIdentifier', 'kMDItemPath']}/>}
+    if (process.env.LACONA_ENV === 'demo') {
+      return {
+        apps: <DemoApps />
+      }
+    } else {
+      return {
+        apps: (
+          <map function={toObject}>
+            <Spotlight directories={['/Applications']} query="kMDItemContentTypeTree == 'com.apple.application'" attributes={['kMDItemDisplayName', 'kMDItemCFBundleIdentifier', 'kMDItemPath']}/>
+          </map>
+        )
+      }
+    }
   }
 
   describe() {
     const apps = this.sources.apps.data.map(app => ({
-      text: app.kMDItemDisplayName,
-      value: app.kMDItemCFBundleIdentifier
+      text: app.name,
+      value: app
     }))
-    //     open: open.bind(null, app.kMDItemCFBundleIdentifier),
-    //     hide: hide.bind(null, app.kMDItemCFBundleIdentifier),
-    //     close: close.bind(null, app.kMDItemCFBundleIdentifier),
-    //     quit: quit.bind(null, app.kMDItemCFBundleIdentifier),
-    //   }
-    // }))
 
     return (
       <argument text='application'>

@@ -27,25 +27,63 @@ export function possibleNameCombinations ({firstName, middleName, lastName, nick
       possibleNames.push(`${nickname} ${lastName}`)
     }
   }
-  
+
   return possibleNames
+}
+
+export function spreadObject (obj, spreadKey, dataKeys = [], valueKey = 'value', labelKey = 'label') {
+  const spreadData = _.chain(obj[spreadKey])
+    .map(({value, label}) => {
+      return _.assign(
+        valueKey ? {[valueKey]: value} : {},
+        labelKey ? {[labelKey]: label} : {},
+        _.pick(value, dataKeys)
+      )
+    })
+    .value()
+  return spreadData
+}
+
+export function spread (data, spreadKey, dataKeys = [], valueKey = 'value', labelKey = 'label') {
+  const spreadData = _.chain(data)
+    .map(item => {
+      return _.map(item[spreadKey], ({value, label}) => {
+        return _.assign(
+          valueKey ? {[valueKey]: value} : {},
+          labelKey ? {[labelKey]: label} : {},
+          _.pick(item, dataKeys)
+        )
+      })
+    })
+    .flatten()
+    .value()
+
+  return spreadData
 }
 
 export class UserContact extends Source {
   onCreate () {
-    this.replaceData([])
-    global.userContact((err, contacts) => {
-      this.replaceData(contacts)
-    })
+    if (process.env.LACONA_ENV === 'demo') {
+      this.replaceData(global.config.userContact)
+    } else {
+      this.replaceData([])
+      global.userContact((err, contact) => {
+        this.replaceData(contact)
+      })
+    }
   }
 }
 
 export class Contacts extends Source {
   onCreate () {
-    this.replaceData([])
-    global.allContacts((err, contacts) => {
-      this.replaceData(contacts)
-    })
+    if (process.env.LACONA_ENV === 'demo') {
+      this.replaceData(global.config.contacts)
+    } else {
+      this.replaceData([])
+      global.allContacts((err, contacts) => {
+        this.replaceData(contacts)
+      })
+    }
   }
 }
 
@@ -54,67 +92,69 @@ If its source looks like this:
 [{a: 1, b: [{value, ...
 
 */
-export class Spread extends Source {
-  source () {
-    return {contacts: this.props.children[0]}
-  }
-
-  onCreate () {
-    this.replaceData([])
-  }
-
-  onUpdate () {
-    const spreadData = _.chain(this.sources.contacts.data)
-      .map(contact => {
-        return _.map(contact[this.props.spreadKey], ({value, label}) => {
-          return _.assign(
-            this.props.valueKey ? {[this.props.valueKey]: value} : {},
-            this.props.labelKey ? {[this.props.labelKey]: label} : {},
-            _.pick(contact, this.props.dataKeys)
-          )
-        })
-      })
-      .flatten()
-      .value()
-
-    this.replaceData(spreadData)
-  }
-}
-Spread.defaultProps = {
-  dataKeys: [],
-  valueKey: 'value',
-  labelKey: 'label'
-}
-
-export class SpreadObject extends Source {
-  source () {
-    return {contact: this.props.children[0]}
-  }
-
-  onCreate () {
-    this.replaceData([])
-  }
-
-  onUpdate () {
-    const spreadData = _.chain(this.sources.contact.data[this.props.spreadKey])
-      .map(({value, label}) => {
-        return _.assign(
-          this.props.valueKey ? {[this.props.valueKey]: value} : {},
-          this.props.labelKey ? {[this.props.labelKey]: label} : {},
-          _.pick(this.sources.contact.data, this.props.dataKeys)
-        )
-      })
-      .value()
-
-    this.replaceData(spreadData)
-  }
-}
-SpreadObject.defaultProps = {
-  dataKeys: [],
-  valueKey: 'value',
-  labelKey: 'label'
-}
-
+// export class Spread extends Source {
+//   source () {
+//     return {contacts: this.props.children[0]}
+//   }
+//
+//   onCreate () {
+//     this.replaceData([])
+//   }
+//
+//   onUpdate () {
+//     const spreadData = _.chain(this.sources.contacts.data)
+//       .map(contact => {
+//         return _.map(contact[this.props.spreadKey], ({value, label}) => {
+//           return _.assign(
+//             this.props.valueKey ? {[this.props.valueKey]: value} : {},
+//             this.props.labelKey ? {[this.props.labelKey]: label} : {},
+//             _.pick(contact, this.props.dataKeys)
+//           )
+//         })
+//       })
+//       .flatten()
+//       .value()
+//
+//     this.replaceData(spreadData)
+//   }
+// }
+//
+// Spread.defaultProps = {
+//   dataKeys: [],
+//   valueKey: 'value',
+//   labelKey: 'label'
+// }
+//
+// export class SpreadObject extends Source {
+//   source () {
+//     return {contact: this.props.children[0]}
+//   }
+//
+//   onCreate () {
+//     this.replaceData([])
+//   }
+//
+//   onUpdate () {
+//     const spreadData = _.chain(this.sources.contact.data[this.props.spreadKey])
+//       .map(({value, label}) => {
+//         return _.assign(
+//           this.props.valueKey ? {[this.props.valueKey]: value} : {},
+//           this.props.labelKey ? {[this.props.labelKey]: label} : {},
+//           _.pick(this.sources.contact.data, this.props.dataKeys)
+//         )
+//       })
+//       .value()
+//
+//     this.replaceData(spreadData)
+//   }
+// }
+//
+// SpreadObject.defaultProps = {
+//   dataKeys: [],
+//   valueKey: 'value',
+//   labelKey: 'label'
+// }
+//
 // export class SpreadUserContact extends Source {
 //   source () {
 //     return {user: <UserContact />}

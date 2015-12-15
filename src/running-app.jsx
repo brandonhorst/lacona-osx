@@ -1,17 +1,12 @@
 /** @jsx createElement */
 import {createElement, Phrase, Source} from 'lacona-phrase'
-import Applescript from './applescript'
 import {RunningApplication} from 'lacona-phrase-system-state'
 
-// const script = `
-//   tell application "System Events"
-//     set allApps to {}
-//     repeat with proc in (every process where background only is false)
-//       set end of allApps to proc's {name, id}
-//     end repeat
-//   end tell
-//   return allApps
-// `
+class DemoRunningApps extends Source {
+  onCreate () {
+    this.replaceData(global.config.apps)
+  }
+}
 
 class RunningApps extends Source {
   onCreate () {
@@ -29,15 +24,60 @@ class RunningApps extends Source {
   }
 }
 
+class RunningAppObject {
+  constructor(item) {
+    this.bundleId = item.id
+    this.name = item.name
+  }
+
+
+  activate () {
+    global.launchApplication(this.bundleId, () => {})
+  }
+
+  hide () {
+    global.hideApplication(this.bundleId, () => {})
+  }
+
+  close () {
+    const script = `
+      tell application "System Events"
+      	set proc to first process whose background only is false and bundle identifier is "${this.bundleId}"
+      	repeat with win in proc's windows
+      		set butt to (win's first button whose subrole is "AXCloseButton")
+      		click butt
+      	end repeat
+      end tell
+    `
+    global.applescript(script)
+  }
+
+  quit () {
+    global.quitApplication(this.bundleId, () => {})
+  }
+}
+
+function toObject (obj) {
+  return new RunningAppObject(obj)
+}
+
 export default class RunningApp extends Phrase {
   source () {
-    // return {apps: <Applescript script='fetchRunningApps' keys={['name', 'id']} />}
-    // return {apps: <Applescript code={script} keys={['name', 'id']} />}
-    return {apps: <RunningApps />}
+    if (process.env.LACONA_ENV === 'demo') {
+      return {apps: <DemoRunningApps />}
+    } else {
+      return {
+        apps: (
+          <map function={toObject}>
+            <RunningApps />
+          </map>
+        )
+      }
+    }
   }
 
   describe () {
-    const apps = this.sources.apps.data.map(app => ({text: app.name, value: app.id}))
+    const apps = this.sources.apps.data.map(app => ({text: app.name, value: app}))
 
     return (
       <argument text='application'>

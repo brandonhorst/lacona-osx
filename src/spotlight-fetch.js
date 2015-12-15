@@ -19,13 +19,14 @@ export default class SpotlightFetch extends Source {
     if (this.currentQueryId != null) {
       global.cancelQuery(this.currentQueryId)
     }
-    this.currentQueryId = global.spotlight(query, this.props.attributes, this.props.limit, this.props.liveUpdate, this.replaceData.bind(this))
+    this.currentQueryId = global.spotlight(query, this.props.attributes, this.props.directories, this.props.limit, this.props.liveUpdate, this.replaceData.bind(this))
   }
 }
 
 SpotlightFetch.defaultProps = {
   liveUpdate: false,
   attributes: [],
+  directories: [],
   limit: 100
 }
 

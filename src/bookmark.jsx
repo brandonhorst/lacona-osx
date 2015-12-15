@@ -1,5 +1,5 @@
 /** @jsx createElement */
-import {createElement, Phrase} from 'lacona-phrase'
+import {createElement, Phrase, Source} from 'lacona-phrase'
 import Spotlight from './spotlight'
 import URL from 'lacona-phrase-url'
 
@@ -10,10 +10,24 @@ tell application "Google Chrome"
 end tell
 */
 
+class DemoBookmarks extends Source {
+  onCreate () {
+    this.replaceData(global.config.bookmarks)
+  }
+}
+
 export default class Bookmark extends Phrase {
   source() {
-    return {bookmarks: <Spotlight query="kMDItemContentTypeTree = 'com.apple.safari.bookmark'"
-      attributes={['kMDItemDisplayName', 'kMDItemURL']}/>}
+    if (process.env.LACONA_ENV === 'demo') {
+      return {
+        bookmarks: <DemoBookmarks />
+      }
+    } else {
+      return {
+        bookmarks: <Spotlight query="kMDItemContentTypeTree = 'com.apple.safari.bookmark'"
+        attributes={['kMDItemDisplayName', 'kMDItemURL']}/>
+      }
+    }
   }
 
   describe() {

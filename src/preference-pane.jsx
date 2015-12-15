@@ -1,11 +1,23 @@
 /** @jsx createElement */
 import PreferencePane from 'lacona-phrase-preference-pane'
-import {createElement, Phrase} from 'lacona-phrase'
+import { createElement, Phrase, Source } from 'lacona-phrase'
 import Spotlight from './spotlight'
+
+class DemoPanes extends Source {
+  onCreate () {
+    this.replaceData(global.config.preferencePanes)
+  }
+}
 
 export default class Pane extends Phrase {
   source () {
-    return {panes: <Spotlight directories={['/Applications']} query="kMDItemContentTypeTree == 'com.apple.systempreference.prefpane'" attributes={['kMDItemDisplayName', 'kMDItemPath']}/>}
+    if (process.env.LACONA_ENV === 'demo') {
+      return {panes: <DemoPanes />}
+    } else {
+      return {
+        panes: <Spotlight directories={['/Applications']} query="kMDItemContentTypeTree == 'com.apple.systempreference.prefpane'" attributes={['kMDItemDisplayName', 'kMDItemPath']}/>
+      }
+    }
   }
 
   describe () {

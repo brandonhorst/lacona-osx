@@ -1,21 +1,23 @@
 
-export {default as Applescript} from './applescript'
+export {Applescript} from './applescript'
 export {default as Spotlight} from './spotlight'
 
 import App from './app'
 import Bookmark from './bookmark'
-import Birthday from './birthday'
 import BrowserTab from './browser-tab'
-import {ContactDate, ContactEmail, ContactPhoneNumber} from './contact'
-import {RelationshipDate, RelationshipPhoneNumber, RelationshipEmail} from './relationship'
+import { ContactDate, ContactEmail, ContactPhoneNumber } from './contact'
+import { RelationshipDate, RelationshipPhoneNumber, RelationshipEmail } from './relationship'
+import { PersonalDate } from './me'
+import { Holiday } from './event'
 import File from './file'
+import OpenWindow from './open-window'
 import Path from './path'
 import PreferencePane from './preference-pane'
 import RunningApp from './running-app'
 import Volume from './volume'
 
 export default {
-  extensions: [App, Bookmark, Birthday, BrowserTab, ContactDate, ContactEmail, ContactPhoneNumber, File, Path, PreferencePane, RelationshipDate, RelationshipEmail, RelationshipPhoneNumber, RunningApp, Volume]
+  extensions: [App, Bookmark, BrowserTab, ContactDate, ContactEmail, ContactPhoneNumber, File, Holiday, OpenWindow, Path, PersonalDate, PreferencePane, RelationshipDate, RelationshipEmail, RelationshipPhoneNumber, RunningApp, Volume]
 }
 
 // export default {

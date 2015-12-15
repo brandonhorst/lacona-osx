@@ -6,25 +6,13 @@ import {Date as DatePhrase} from 'lacona-phrase-datetime'
 import Email from 'lacona-phrase-email'
 import PhoneNumber from 'lacona-phrase-phonenumber'
 import {dateMap, relationshipMap} from './constant-maps'
-import {Spread, SpreadObject, UserContact} from './contact-sources'
+import {spread, spreadObject, UserContact} from './contact-sources'
 
-export class Relationships extends Source {
-  source () {
-    return {
-      relationships: (
-        <SpreadObject spreadKey='relationships' labelKey='relationship' valueKey={null} dataKeys={['phoneNumbers', 'emails', 'dates']}>
-          <UserContact />
-        </SpreadObject>
-      )
-    }
-  }
-
-  onCreate () {this.replaceData([])}
-
-  onUpdate () {
-    this.replaceData(this.sources.relationships.data)
-  }
-}
+const relationships = (
+  <thru function={_.partial(spreadObject, _, 'relationships', ['phoneNumbers', 'emails', 'dates'], null, 'relationship')}>
+    <UserContact />
+  </thru>
+)
 
 class RelationshipPhrase extends Phrase {
   describe () {
@@ -54,9 +42,9 @@ export class RelationshipPhoneNumber extends RelationshipPhrase {
   source () {
     return {
       relationships: (
-        <Spread spreadKey='phoneNumbers' dataKeys={['relationship']}>
-          <Relationships />
-        </Spread>
+        <thru function={_.partial(spread, _, 'phoneNumbers', ['relationship'])}>
+          {relationships}
+        </thru>
       )
     }
   }
@@ -67,9 +55,9 @@ export class RelationshipEmail extends RelationshipPhrase {
   source () {
     return {
       relationships: (
-        <Spread spreadKey='emails' dataKeys={['relationship']}>
-          <Relationships />
-        </Spread>
+        <thru function={_.partial(spread, _, 'emails', ['relationship'])}>
+          {relationships}
+        </thru>
       )
     }
   }
@@ -80,9 +68,9 @@ export class RelationshipDate extends Phrase {
   source () {
     return {
       contacts: (
-        <Spread spreadKey='dates' dataKeys={['relationship']}>
-          <Relationships />
-        </Spread>
+        <thru function={_.partial(spread, _, 'dates', ['relationship'])}>
+          {relationships}
+        </thru>
       )
     }
   }
@@ -96,8 +84,26 @@ export class RelationshipDate extends Phrase {
           <choice limit={1} value={value}>
             {_.map(dateNames, dateName => {
               return [
-                _.map(relationships, oneRelationship => <literal text={`my ${oneRelationship.toLowerCase()}'s ${dateName}`} />),
-                _.map(relationships, oneRelationship => <literal text={`${_.capitalize(oneRelationship)}'s ${dateName}`} />)
+                _.map(relationships, oneRelationship => (
+                  <sequence>
+                    <argument text='relationship'>
+                      <literal text={`my ${oneRelationship.toLowerCase()}'s `} />
+                    </argument>
+                    <argument text='special date'>
+                      <literal text={dateName} />
+                    </argument>
+                  </sequence>
+                )),
+                _.map(relationships, oneRelationship => (
+                  <sequence>
+                    <argument text='relationship'>
+                      <literal text={`${_.capitalize(oneRelationship)}'s `} />
+                    </argument>
+                    <argument text='special date'>
+                      <literal text={dateName} />
+                    </argument>
+                  </sequence>
+                ))
               ]
             })}
           </choice>
@@ -107,12 +113,10 @@ export class RelationshipDate extends Phrase {
 
     return (
       <sequence>
-        <literal text='on ' category='conjunction' optional={true} limited={true} prefered={false} />
-        <argument text='birthday'>
-          <choice>
-            {items}
-          </choice>
-        </argument>
+        {this.props.prepositions ? <literal text='on ' category='conjunction' optional limited prefered /> : null}
+        <choice merge>
+          {items}
+        </choice>
       </sequence>
     )
   }

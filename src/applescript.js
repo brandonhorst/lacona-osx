@@ -1,11 +1,13 @@
+import _ from 'lodash'
 import {Source} from 'lacona-phrase'
 
-export default class Applescript extends Source {
+export class Applescript extends Source {
   onCreate () {
     this.triggered = false
     this.replaceData([])
 
     if (this.props.fetchOn === 'create') { this.fetch() }
+    if (this.props.fetchOn === 'activate') { this.fetch() }
   }
 
   onActivate () {
@@ -14,9 +16,9 @@ export default class Applescript extends Source {
 
   onDeactivate () {
     if (this.props.fetchOn === 'activate') { this.replaceData([]) }
-    if (this.props.fetchOn === 'triggerOnce') {
-      this.triggered = false
-    }
+    // if (this.props.fetchOn === 'triggerOnce') {
+    //   this.triggered = false
+    // }
   }
 
   trigger () {
@@ -29,7 +31,7 @@ export default class Applescript extends Source {
   }
 
   fetch () {
-    global.applescript(this.props.code, this.props.keys, (err, data) => {
+    global.applescript(this.props.code, (err, data) => {
       if (err) {
         console.log('Applescript Error:')
         console.log(err)
