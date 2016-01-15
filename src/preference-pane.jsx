@@ -1,33 +1,54 @@
 /** @jsx createElement */
-import PreferencePane from 'lacona-phrase-preference-pane'
+import _ from 'lodash'
+import { PreferencePane } from 'lacona-phrase-system'
 import { createElement, Phrase, Source } from 'lacona-phrase'
-import Spotlight from './spotlight'
+import { fetchPreferencePanes, openFile } from 'lacona-api'
 
-class DemoPanes extends Source {
-  onCreate () {
-    this.replaceData(global.config.preferencePanes)
+class PaneObject {
+  constructor ({path, name}) {
+    this.path = path
+    this.name = name
+    this.type = 'preference pane'
+  }
+
+  open () {
+    openFile({path: this.path})
   }
 }
 
-export default class Pane extends Phrase {
-  source () {
-    if (process.env.LACONA_ENV === 'demo') {
-      return {panes: <DemoPanes />}
-    } else {
-      return {
-        panes: <Spotlight directories={['/Applications']} query="kMDItemContentTypeTree == 'com.apple.systempreference.prefpane'" attributes={['kMDItemDisplayName', 'kMDItemPath']}/>
+class Panes extends Source {
+  data = []
+
+  onCreate () {
+    this.onActivate()
+  }
+
+  onActivate () {
+    fetchPreferencePanes((err, panes) => {
+      if (err) {
+        console.error(err)
+      } else {
+        const trueData = _.map(panes, pane => new PaneObject(pane))
+        this.setData(trueData)
       }
-    }
+    })
+  }
+}
+
+export class Pane extends Phrase {
+  static extends = [PreferencePane]
+
+  observe () {
+    return <Panes />
   }
 
   describe () {
-    const panes = this.sources.panes.data.map(pane => ({text: pane.kMDItemDisplayName, value: pane.kMDItemPath}))
+    const panes = _.map(this.source.data, pane => ({text: pane.name, value: pane}))
 
     return (
-      <argument text='preference pane'>
-        <list fuzzy={true} items={panes} limit={10} />
-      </argument>
+      <label text='preference pane'>
+        <list fuzzy items={panes} limit={10} />
+      </label>
     )
   }
 }
-Pane.extends = [PreferencePane]

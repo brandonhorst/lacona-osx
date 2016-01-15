@@ -1,12 +1,12 @@
 /** @jsx createElement */
 
 import _ from 'lodash'
-import {Contacts, possibleNameCombinations, spread } from './contact-sources'
-import {createElement, Phrase, Source} from 'lacona-phrase'
-import {Date as DatePhrase} from 'lacona-phrase-datetime'
-import {dateMap} from './constant-maps'
-import Email from 'lacona-phrase-email'
-import PhoneNumber from 'lacona-phrase-phonenumber'
+import { Contacts, possibleNameCombinations, spread } from './contact-sources'
+import { createElement, Phrase, Source } from 'lacona-phrase'
+import { Day } from 'lacona-phrase-datetime'
+import { dateMap } from './constant-maps'
+import { EmailAddress } from 'lacona-phrase-email'
+import { PhoneNumber } from 'lacona-phrase-phone-number'
 
 function elementsFromContacts (data) {
   const elements = _.chain(data)
@@ -19,59 +19,67 @@ function elementsFromContacts (data) {
     .value()
 
   return (
-    <argument text='contact' showForEmpty={true}>
+    <label text='contact'>
       <choice limit={10}>
         {elements}
       </choice>
-    </argument>
+    </label>
   )
 }
 
 class ContactPhrase extends Phrase {
   describe () {
-    return elementsFromContacts(this.sources.contacts.data)
+    return elementsFromContacts(this.source.data)
   }
+}
+
+function spreadEmails (ary) {
+  return spread(ary, 'emails', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])
 }
 
 export class ContactEmail extends ContactPhrase {
-  source () {
-    return {
-      contacts: (
-        <thru function={_.partial(spread, _, 'emails', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])}>
-          <Contacts />
-        </thru>
-      )
-    }
+  static extends = [EmailAddress]
+  observe () {
+    return (
+      <map function={spreadEmails}>
+        <Contacts />
+      </map>
+    )
   }
 }
-ContactEmail.extends = [Email]
+
+function spreadPhoneNumbers (ary) {
+  return spread(ary, 'phoneNumbers', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])
+}
 
 export class ContactPhoneNumber extends ContactPhrase {
-  source () {
-    return {
-      contacts: (
-        <thru function={_.partial(spread, _, 'phoneNumbers', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])}>
-          <Contacts />
-        </thru>
-      )
-    }
+  static extends = [PhoneNumber]
+  observe () {
+    return (
+      <map function={spreadPhoneNumbers}>
+        <Contacts />
+      </map>
+    )
   }
 }
-ContactPhoneNumber.extends = [PhoneNumber]
+
+function spreadDates (ary) {
+  return spread(ary, 'dates', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])
+}
 
 export class ContactDate extends Phrase {
-  source () {
-    return {
-      contacts: (
-        <thru function={_.partial(spread, _, 'dates', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])}>
-          <Contacts />
-        </thru>
-      )
-    }
+  static extends = [Day]
+
+  observe () {
+    return (
+      <map function={spreadDates}>
+        <Contacts />
+      </map>
+    )
   }
 
   describe () {
-    const items = _.chain(this.sources.contacts.data)
+    const items = _.chain(this.source.data)
       .map(({firstName, middleName, lastName, nickname, company, value, label}) => {
         const dateNames = dateMap[label] || [label]
         const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname})
@@ -80,12 +88,12 @@ export class ContactDate extends Phrase {
             {_.map(dateNames, dateName => {
               return _.map(possibleNames, possibleName => (
                 <sequence>
-                  <argument text='contact'>
+                  <label text='contact'>
                     <literal text={`${possibleName}'s `} />
-                  </argument>
-                  <argument text='special date'>
+                  </label>
+                  <label text='special date'>
                     <literal text={dateName} />
-                  </argument>
+                  </label>
                 </sequence>
               ))
             })}
@@ -96,7 +104,7 @@ export class ContactDate extends Phrase {
 
     return (
       <sequence>
-        {this.props.prepositions ? <literal text='on ' category='conjunction' optional limited prefered /> : null}
+        {this.props.prepositions ? <literal text='on ' category='conjunction' optional limited preferred /> : null}
         <choice limit={10}>
           {items}
         </choice>
@@ -104,5 +112,3 @@ export class ContactDate extends Phrase {
     )
   }
 }
-
-ContactDate.extends = [DatePhrase]

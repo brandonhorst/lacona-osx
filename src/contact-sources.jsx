@@ -1,7 +1,8 @@
 /** @jsx createElement */
 
 import _ from 'lodash'
-import {createElement, Source} from 'lacona-phrase'
+import { createElement, Source } from 'lacona-phrase'
+import { fetchContacts, fetchUserContact } from 'lacona-api'
 
 export function possibleNameCombinations ({firstName, middleName, lastName, nickname, company}) {
   const possibleNames = []
@@ -62,28 +63,38 @@ export function spread (data, spreadKey, dataKeys = [], valueKey = 'value', labe
 }
 
 export class UserContact extends Source {
+  data = []
+
   onCreate () {
-    if (process.env.LACONA_ENV === 'demo') {
-      this.replaceData(global.config.userContact)
-    } else {
-      this.replaceData([])
-      global.userContact((err, contact) => {
-        this.replaceData(contact)
-      })
-    }
+    this.onActivate()
+  }
+
+  onActivate () {
+    fetchUserContact((err, contacts) => {
+      if (err) {
+        console.error(err)
+      } else {
+        this.setData(contacts)
+      }
+    })
   }
 }
 
 export class Contacts extends Source {
+  data = []
+
   onCreate () {
-    if (process.env.LACONA_ENV === 'demo') {
-      this.replaceData(global.config.contacts)
-    } else {
-      this.replaceData([])
-      global.allContacts((err, contacts) => {
-        this.replaceData(contacts)
-      })
-    }
+    this.onActivate()
+  }
+
+  onActivate () {
+    fetchContacts((err, contacts) => {
+      if (err) {
+        console.error(err)
+      } else {
+        this.setData(contacts)
+      }
+    })
   }
 }
 
@@ -93,7 +104,7 @@ If its source looks like this:
 
 */
 // export class Spread extends Source {
-//   source () {
+//   observe () {
 //     return {contacts: this.props.children[0]}
 //   }
 //
@@ -126,7 +137,7 @@ If its source looks like this:
 // }
 //
 // export class SpreadObject extends Source {
-//   source () {
+//   observe () {
 //     return {contact: this.props.children[0]}
 //   }
 //
@@ -156,7 +167,7 @@ If its source looks like this:
 // }
 //
 // export class SpreadUserContact extends Source {
-//   source () {
+//   observe () {
 //     return {user: <UserContact />}
 //   }
 //

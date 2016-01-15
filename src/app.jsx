@@ -1,65 +1,65 @@
 /** @jsx createElement */
-import Application from 'lacona-phrase-application'
-import {createElement, Phrase, Source} from 'lacona-phrase'
-import Spotlight from './spotlight'
+import _ from 'lodash'
+import { Application } from 'lacona-phrase-system'
+import { createElement, Phrase, Source } from 'lacona-phrase'
+import { fetchApplications, launchApplication, openURLInApplication, openFileInApplication } from 'lacona-api'
 
 class AppObject {
-  constructor({kMDItemCFBundleIdentifier, kMDItemDisplayName, kMDItemPath}) {
-    this.bundleId = kMDItemCFBundleIdentifier
-    this.name = kMDItemDisplayName
+  constructor({bundleId, name}) {
+    this.bundleId = bundleId
+    this.name = name
+    this.type = 'application'
   }
 
   open () {
-    global.launchApplication(this.bundleId, () => {})
+    launchApplication({bundleId: this.bundleId}, () => {})
   }
 
   openURL (url) {
-    global.openURLInApplication(rl, this.bundleId)
+    openURLInApplication({url, bundleId: this.bundleId})
   }
 
-  openFile (file) {
-    global.openURLInApplication(file, this.bundleId)
+  openFile (path) {
+    openFileInApplication({path, bundleId: this.bundleId})
   }
 }
 
-function toObject (obj) {
-  return new AppObject(obj)
-}
+class Applications extends Source {
+  data = []
 
-class DemoApps extends Source {
   onCreate () {
-    this.replaceData(global.config.apps)
+    this.onActivate()
+  }
+
+  onActivate () {
+    fetchApplications((err, apps) => {
+      if (err) {
+        console.error(err)
+      } else {
+        const objs = _.map(apps, app => new AppObject(app))
+        this.setData(objs)
+      }
+    })
   }
 }
 
-export default class App extends Phrase {
-  source() {
-    if (process.env.LACONA_ENV === 'demo') {
-      return {
-        apps: <DemoApps />
-      }
-    } else {
-      return {
-        apps: (
-          <map function={toObject}>
-            <Spotlight directories={['/Applications']} query="kMDItemContentTypeTree == 'com.apple.application'" attributes={['kMDItemDisplayName', 'kMDItemCFBundleIdentifier', 'kMDItemPath']}/>
-          </map>
-        )
-      }
-    }
+export class App extends Phrase {
+  static extends = [Application]
+
+  observe () {
+    return <Applications />
   }
 
   describe() {
-    const apps = this.sources.apps.data.map(app => ({
+    const apps = _.map(this.source.data, app => ({
       text: app.name,
       value: app
     }))
 
     return (
-      <argument text='application'>
-        <list fuzzy={true} items={apps} limit={10} />
-      </argument>
+      <label text='application'>
+        <list fuzzy items={apps} limit={10} />
+      </label>
     )
   }
 }
-App.extends = [Application]

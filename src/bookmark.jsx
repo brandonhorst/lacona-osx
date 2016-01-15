@@ -1,8 +1,7 @@
 /** @jsx createElement */
-import {createElement, Phrase, Source} from 'lacona-phrase'
-import Spotlight from './spotlight'
-import URL from 'lacona-phrase-url'
-
+import { createElement, Phrase, Source } from 'lacona-phrase'
+import { URL } from 'lacona-phrase-url'
+import { fetchBookmarks } from 'lacona-api'
 
 /* for when I want to support Chrome
 tell application "Google Chrome"
@@ -10,34 +9,37 @@ tell application "Google Chrome"
 end tell
 */
 
-class DemoBookmarks extends Source {
+class Bookmarks extends Source {
+  data = []
+
   onCreate () {
-    this.replaceData(global.config.bookmarks)
+    this.onActivate()
+  }
+
+  onActivate () {
+    fetchBookmarks((err, data) => {
+      if (err) {
+        console.error(err)
+      } else {
+        this.setData(data)
+      }
+    })
   }
 }
 
-export default class Bookmark extends Phrase {
-  source() {
-    if (process.env.LACONA_ENV === 'demo') {
-      return {
-        bookmarks: <DemoBookmarks />
-      }
-    } else {
-      return {
-        bookmarks: <Spotlight query="kMDItemContentTypeTree = 'com.apple.safari.bookmark'"
-        attributes={['kMDItemDisplayName', 'kMDItemURL']}/>
-      }
-    }
+export class Bookmark extends Phrase {
+  static extends = [URL]
+  observe () {
+    return <Bookmarks />
   }
 
-  describe() {
-    const bookmarks = this.sources.bookmarks.data.map(bookmark => ({text: bookmark.kMDItemDisplayName, value: bookmark.kMDItemURL}))
+  describe () {
+    const bookmarks = this.source.data.map(bookmark => ({text: bookmark.name, value: bookmark.url}))
 
     return (
-      <argument text='bookmark'>
-        <list fuzzy={true} items={bookmarks} />
-      </argument>
+      <label text='bookmark'>
+        <list fuzzy items={bookmarks} limit={10} />
+      </label>
     )
   }
 }
-Bookmark.extends = [URL]

@@ -1,26 +1,29 @@
 /** @jsx createElement */
-import {createElement, Phrase, Source} from 'lacona-phrase'
-import {RunningApplication} from 'lacona-phrase-system-state'
-
-class DemoRunningApps extends Source {
-  onCreate () {
-    this.replaceData(global.config.apps)
-  }
-}
+import _ from 'lodash'
+import { createElement, Phrase, Source } from 'lacona-phrase'
+import { RunningApplication } from 'lacona-phrase-system'
+import { fetchRunningApplications, activateApplication, hideApplication, closeApplicationWindows, quitApplication } from 'lacona-api'
 
 class RunningApps extends Source {
-  onCreate () {
-    this.replaceData([])
-  }
+  data = []
 
-  onActivate () {
-    global.allRunningApps((err, apps) => {
-      if (apps) this.replaceData(apps)
+  onCreate () {
+    fetchRunningApplications((err, apps) => {
+      if (err) {
+        console.error(err)
+      } else {
+        const trueData = _.map(apps, app => new RunningAppObject(app))
+        this.setData(trueData)
+      }
     })
   }
 
+//TODO
+  onActivate () {
+  }
+
   onDeactivate () {
-    this.replaceData([])
+    // this.replaceData([])
   }
 }
 
@@ -28,61 +31,39 @@ class RunningAppObject {
   constructor(item) {
     this.bundleId = item.id
     this.name = item.name
+    this.type = 'application'
   }
 
 
   activate () {
-    global.launchApplication(this.bundleId, () => {})
+    launchApplication({bundleId: this.bundleId})
   }
 
   hide () {
-    global.hideApplication(this.bundleId, () => {})
+    hideApplication({bundleId: this.bundleId})
   }
 
   close () {
-    const script = `
-      tell application "System Events"
-      	set proc to first process whose background only is false and bundle identifier is "${this.bundleId}"
-      	repeat with win in proc's windows
-      		set butt to (win's first button whose subrole is "AXCloseButton")
-      		click butt
-      	end repeat
-      end tell
-    `
-    global.applescript(script)
+    closeApplicationWindows({bundleId: this.bundleId})
   }
 
   quit () {
-    global.quitApplication(this.bundleId, () => {})
+    quitApplication({bundleId: this.bundleId})
   }
 }
 
-function toObject (obj) {
-  return new RunningAppObject(obj)
-}
-
-export default class RunningApp extends Phrase {
-  source () {
-    if (process.env.LACONA_ENV === 'demo') {
-      return {apps: <DemoRunningApps />}
-    } else {
-      return {
-        apps: (
-          <map function={toObject}>
-            <RunningApps />
-          </map>
-        )
-      }
-    }
+export class RunningApp extends Phrase {
+  observe () {
+    return <RunningApps />
   }
 
   describe () {
-    const apps = this.sources.apps.data.map(app => ({text: app.name, value: app}))
+    const apps = _.map(this.source.data, app => ({text: app.name, value: app}))
 
     return (
-      <argument text='application'>
+      <label text='application'>
         <list fuzzy={true} items={apps} />
-      </argument>
+      </label>
     )
   }
 }

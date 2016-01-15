@@ -1,22 +1,32 @@
-import {Source} from 'lacona-phrase'
+// import { Source } from 'lacona-phrase'
+// import { querySpotlight } from 'lacona-api'
 
-export default class Spotlight extends Source {
-  onCreate () {
-    this.replaceData([])
+// export default class Spotlight extends Source {
+//   onCreate () {
+//     this.replaceData([])
 
-    this.queryId = global.spotlight(this.props.query, this.props.attributes, this.props.directories, this.props.limit, this.props.liveUpdate, data => {
-      this.replaceData(data)
-    })
-  }
+//     this.query = querySpotlight({
+//       query: this.props.query,
+//       attributes: this.props.attributes,
+//       directories: this.props.directories,
+//       limit: this.props.limit,
+//       liveUpdate: this.props.liveUpdate
+//     })
 
-  onDestroy () {
-    global.cancelQuery(this.queryId)
-  }
-}
-Spotlight.defaultProps = {
-  liveUpdate: false,
-  attributes: [],
-  directories: [],
-  query: '',
-  limit: 100
-}
+//     this.query.on('data', (data) => {
+//       this.setData(data)
+//     })
+//   }
+
+//   onDestroy () {
+//     this.query.cancel()
+//   }
+// }
+
+// Spotlight.defaultProps = {
+//   liveUpdate: false,
+//   attributes: [],
+//   directories: [],
+//   query: '',
+//   limit: 100
+// }

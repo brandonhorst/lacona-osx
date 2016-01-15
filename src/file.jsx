@@ -1,60 +1,51 @@
 /** @jsx createElement */
+import _ from 'lodash'
 import { createElement, Phrase, Source } from 'lacona-phrase'
-import SpotlightFetch from './spotlight-fetch'
-import BaseFile from 'lacona-phrase-file'
-import {dirname, basename} from 'path'
+import { File as BaseFile } from 'lacona-phrase-file'
+import { searchFiles } from 'lacona-api'
+import { dirname, basename } from 'path'
 
-class DemoFiles extends Source {
-  onCreate () {
-    this.replaceData(global.config.spotlightFiles)
-  }
-  
-  fetch () {}
-}
+class Files extends Source {
+  static preventSharing = true
 
-export default class File extends Phrase {
-  source () {
-    if (process.env.LACONA_ENV === 'demo') {
-      return {
-        files: <DemoFiles />
-      }
-    } else {
-      return {
-        files: <SpotlightFetch attributes={['kMDItemPath', 'kMDItemContentType']} limit={10} />
-      }
-    }
-  }
+  data = []
 
   fetch (input) {
-    if (input === '') return
-    this.sources.files.fetch(
-      `kMDItemFSName contains[cd] "${input}" && ` +
-      'kMDItemSupportFileType != "MDSystemFile" && ' +
-      'kMDItemContentTypeTree != "com.apple.application" && ' +
-      'kMDItemContentTypeTree != "com.apple.application-bundle" && ' +
-      'kMDItemContentTypeTree != "com.apple.safari.bookmark" && ' +
-      'kMDItemContentTypeTree != "public.contact" && ' +
-      'kMDItemContentTypeTree != "com.apple.safari.history" && ' +
-      'kMDItemContentTypeTree != "public.calendar-event" && ' +
-      'kMDItemContentTypeTree != "com.apple.ichat.transcript"'
-    )
+    searchFiles(input, (err, files) => {
+      if (err) {
+        console.error(err)
+      } else {
+        if (!_.isEqual(files, this.data)) {
+          this.setData(files)
+        }
+      }
+    })
+  }
+}
+
+export class File extends Phrase {
+  static extends = [BaseFile]
+
+  observe () {
+    return <Files />
   }
 
   describe () {
-    const files = this.sources.files.data.map(({kMDItemPath, kMDItemContentType}) => {
+    const files = _.map(this.source.data, ({path}) => {
       return (
-        <sequence value={kMDItemPath}>
-          <decorator allowInput={false} text={`${dirname(kMDItemPath)}/`} />
-          <literal text={basename(kMDItemPath)} />
+        <sequence value={path}>
+          <literal decorate allowInput={false} text={`${dirname(path)}/`} />
+          <literal text={basename(path)} />
         </sequence>
       )
     })
 
     return (
-      <argument text='file' trigger={this.fetch.bind(this)}>
-        <choice>{files}</choice>
-      </argument>
+      <label text='file'>
+        <tap function={this.source.fetch.bind(this.source)}>
+          <choice>{files}</choice>
+        </tap>
+      </label>
     )
   }
 }
-File.extends = [BaseFile]

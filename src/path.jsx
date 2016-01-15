@@ -1,17 +1,23 @@
 /** @jsx createElement */
 import _ from 'lodash'
-import {createElement, Phrase, Source} from 'lacona-phrase'
-import SpotlightFetch from './spotlight-fetch'
-import BaseFile from 'lacona-phrase-file'
-import {resolve} from 'path'
+import { createElement, Phrase, Source } from 'lacona-phrase'
+import { File as BaseFile } from 'lacona-phrase-file'
+import { resolve } from 'path'
+import { fetchDirectoryContents, userHome } from 'lacona-api'
 
 class Directory extends Source {
-  onCreate () {
-    this.replaceData([])
+  data = []
 
-    global.getDirectoryContents(this.props.path, (err, contents) => {
-      if (!err) {
-        this.replaceData(contents)
+  onCreate () {
+    this.onActivate()
+  }
+
+  onActivate () {
+    fetchDirectoryContents({path: this.props.path}, (err, contents) => {
+      if (err) {
+        console.error(err)
+      } else {
+        this.setData(contents)
       }
     })
   }
@@ -27,38 +33,9 @@ function processChildren (children) {
   })
 }
 
-class DemoDirectory extends Source {
-  onCreate () {
-    this.replaceData(global.config.rootFiles[this.props.path])
-  }
-  //   const components = this.props.path.split('/')
-  //   console.log(components)
-  //   let contents = processChildren(global.config.rootFiles)
-  //   for (let component in components.slice(1)) {
-  //     const theDir = _.find(contents, child => child.name === component)
-  //     if (theDir) {
-  //       contents = processChildren(theDir.children)
-  //     } else {
-  //       this.replaceData([])
-  //       return
-  //     }
-  //   }
-  //
-  //   this.replaceData(contents)
-  // }
-}
-
 class TrueFile extends Phrase {
-  source () {
-    if (process.env.LACONA_ENV === 'demo') {
-      return {
-        files: <DemoDirectory path={this.props.directory} />
-      }
-    } else {
-      return {
-        files: <Directory path={this.props.directory} />
-      }
-    }
+  observe () {
+    return <Directory path={this.props.directory} />
   }
 
   getValue (result) {
@@ -73,7 +50,7 @@ class TrueFile extends Phrase {
   }
 
   describe () {
-    const dirElements = _.chain(this.sources.files.data)
+    const dirElements = _.chain(this.source.data)
       .map(({isDir, file}) => {
         if (!isDir) return
         const val = `${file}/`
@@ -89,7 +66,7 @@ class TrueFile extends Phrase {
       .filter()
       .value()
 
-    const fileItems = _.chain(this.sources.files.data)
+    const fileItems = _.chain(this.source.data)
       .map(({isDir, file}) => (
         isDir ? null : {text: file, value: {suffix: file}}
       ))
@@ -97,37 +74,35 @@ class TrueFile extends Phrase {
       .value()
 
     return (
-      <choice>
-        <argument text='directory'>
-          <choice>
-            <literal text='' value={{prefix: '', suffix: ''}} />
-            {dirElements}
-          </choice>
-        </argument>
-        {fileItems.length > 0 ?
-          <argument text='file'>
-            <list items={fileItems} />
-          </argument> :
-          null
-        }
-      </choice>
+      <map function={this.getValue.bind(this)}>
+        <choice>
+          <label text='directory'>
+            <choice>
+              <literal text='' value={{prefix: '', suffix: ''}} />
+              {dirElements}
+            </choice>
+          </label>
+          {fileItems.length > 0 ?
+            <label text='file'>
+              <list items={fileItems} />
+            </label> :
+            null
+          }
+        </choice>
+      </map>
     )
   }
 }
 
 class UserHome extends Source {
-  onCreate () {
-    if (process.env.LACONA_ENV === 'demo') {
-      this.replaceData('/Users/LaconaUser')
-    } else {
-      this.replaceData(global.getUserHome())
-    }
-  }
+  data = userHome()
 }
 
-export default class Path extends Phrase {
-  source () {
-    return {userHome: <UserHome />}
+export class Path extends Phrase {
+  static extends = [BaseFile]
+
+  observe () {
+    return <UserHome />
   }
 
   getValue (result) {
@@ -137,20 +112,20 @@ export default class Path extends Phrase {
 
   describe () {
     return (
-      <argument text='path' showForEmpty={true}>
-        <choice>
-          <sequence>
-            <literal text='/' value='/' id='prefix' />
-            <TrueFile directory='/' id='suffix' />
-          </sequence>
-          <sequence>
-            <literal text='~/' value={`${this.sources.userHome.data}/`} id='prefix' />
-            <TrueFile directory={`${this.sources.userHome.data}/`} id='suffix' />
-          </sequence>
-        </choice>
-      </argument>
+      <label text='path'>
+        <map function={this.getValue.bind(this)}>
+          <choice>
+            <sequence>
+              <literal text='/' value='/' id='prefix' />
+              <TrueFile directory='/' id='suffix' />
+            </sequence>
+            <sequence>
+              <literal text='~/' value={`${this.source.data}/`} id='prefix' />
+              <TrueFile directory={`${this.source.data}/`} id='suffix' />
+            </sequence>
+          </choice>
+        </map>
+      </label>
     )
   }
 }
-
-Path.extends = [BaseFile]

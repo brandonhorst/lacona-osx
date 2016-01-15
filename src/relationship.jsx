@@ -1,22 +1,22 @@
 /** @jsx createElement */
 
 import _ from 'lodash'
-import {createElement, Phrase, Source} from 'lacona-phrase'
-import {Date as DatePhrase} from 'lacona-phrase-datetime'
-import Email from 'lacona-phrase-email'
-import PhoneNumber from 'lacona-phrase-phonenumber'
-import {dateMap, relationshipMap} from './constant-maps'
-import {spread, spreadObject, UserContact} from './contact-sources'
+import { createElement, Phrase } from 'lacona-phrase'
+import { Day } from 'lacona-phrase-datetime'
+import { EmailAddress } from 'lacona-phrase-email'
+import { PhoneNumber } from 'lacona-phrase-phone-number'
+import { dateMap, relationshipMap } from './constant-maps'
+import { spread, spreadObject, UserContact } from './contact-sources'
 
 const relationships = (
-  <thru function={_.partial(spreadObject, _, 'relationships', ['phoneNumbers', 'emails', 'dates'], null, 'relationship')}>
+  <map function={_.partial(spreadObject, _, 'relationships', ['phoneNumbers', 'emails', 'dates'], null, 'relationship')}>
     <UserContact />
-  </thru>
+  </map>
 )
 
 class RelationshipPhrase extends Phrase {
   describe () {
-    const items = _.chain(this.sources.relationships.data)
+    const items = _.chain(this.source.data)
       .map(({relationship, value, label}) => {
         const relationships = relationshipMap[relationship] || [relationship]
         return (
@@ -29,91 +29,105 @@ class RelationshipPhrase extends Phrase {
       .value()
 
     return (
-      <argument text='relationship' showForEmpty={true}>
+      <label text='relationship'>
         <choice>
           {items}
         </choice>
-      </argument>
+      </label>
     )
   }
 }
 
+function spreadPhoneNumbers (ary) {
+  return spread(ary, 'phoneNumbers', ['relationship'])
+}
+
 export class RelationshipPhoneNumber extends RelationshipPhrase {
-  source () {
-    return {
-      relationships: (
-        <thru function={_.partial(spread, _, 'phoneNumbers', ['relationship'])}>
-          {relationships}
-        </thru>
-      )
-    }
+  static extends = [PhoneNumber]
+
+  observe () {
+    return (
+      <map function={spreadPhoneNumbers}>
+        {relationships}
+      </map>
+    )
   }
 }
-RelationshipPhoneNumber.extends = [PhoneNumber]
+
+function spreadEmails (ary) {
+  return spread(ary, 'emails', ['relationship'])
+}
 
 export class RelationshipEmail extends RelationshipPhrase {
-  source () {
-    return {
-      relationships: (
-        <thru function={_.partial(spread, _, 'emails', ['relationship'])}>
-          {relationships}
-        </thru>
-      )
-    }
+  static extends = [EmailAddress]
+
+  observe () {
+    return (
+      <map function={spreadEmails}>
+        {relationships}
+      </map>
+    )
   }
 }
-RelationshipEmail.extends = [Email]
+
+function spreadDates (ary) {
+  return spread(ary, 'dates', ['relationship'])
+}
 
 export class RelationshipDate extends Phrase {
-  source () {
-    return {
-      contacts: (
-        <thru function={_.partial(spread, _, 'dates', ['relationship'])}>
-          {relationships}
-        </thru>
-      )
-    }
+  static extends = [Day]
+
+  observe () {
+    return (
+      <map function={spreadDates}>
+        {relationships}
+      </map>
+    )
   }
 
   describe () {
-    const items = _.chain(this.sources.contacts.data)
+    const items = _.chain(this.source.data)
       .map(({relationship, value, label}) => {
         const relationships = relationshipMap[relationship] || [relationship]
         const dateNames = dateMap[label] || [label]
         return (
-          <choice limit={1} value={value}>
-            {_.map(dateNames, dateName => {
-              return [
-                _.map(relationships, oneRelationship => (
-                  <sequence>
-                    <argument text='relationship'>
-                      <literal text={`my ${oneRelationship.toLowerCase()}'s `} />
-                    </argument>
-                    <argument text='special date'>
-                      <literal text={dateName} />
-                    </argument>
-                  </sequence>
-                )),
-                _.map(relationships, oneRelationship => (
-                  <sequence>
-                    <argument text='relationship'>
-                      <literal text={`${_.capitalize(oneRelationship)}'s `} />
-                    </argument>
-                    <argument text='special date'>
-                      <literal text={dateName} />
-                    </argument>
-                  </sequence>
-                ))
-              ]
-            })}
-          </choice>
+          <label argument={false} text='special day'>
+            <choice limit={1} value={value}>
+              {_.map(dateNames, dateName => {
+                return [
+                  _.map(relationships, oneRelationship => (
+                    <sequence>
+                      <label text='relationship'>
+                        <literal text={`my ${oneRelationship.toLowerCase()}'s`} />
+                      </label>
+                      <literal text=' ' />
+                      <label text='special day'>
+                        <literal text={dateName} />
+                      </label>
+                    </sequence>
+                  )),
+                  _.map(relationships, oneRelationship => (
+                    <sequence>
+                      <label text='relationship'>
+                        <literal text={`${_.capitalize(oneRelationship)}'s`} />
+                      </label>
+                      <literal text=' ' />
+                      <label text='special day'>
+                        <literal text={dateName} />
+                      </label>
+                    </sequence>
+                  ))
+                ]
+              })}
+            </choice>
+          </label>
         )
       })
       .value()
 
     return (
       <sequence>
-        {this.props.prepositions ? <literal text='on ' category='conjunction' optional limited prefered /> : null}
+        {this.props.prepositions ? <literal text='on ' category='conjunction' optional limited preferred /> : null}
         <choice merge>
           {items}
         </choice>
@@ -121,4 +135,3 @@ export class RelationshipDate extends Phrase {
     )
   }
 }
-RelationshipDate.extends = [DatePhrase]

@@ -4,9 +4,9 @@
   "description": "Lacona Extensions for OSX, tied into the global-context hosted API",
   "main": "lib/index.js",
   "scripts": {
-    "pretest": "babel test --out-dir tmp",
+    "pretest": "babel --stage 0 test --out-dir tmp",
     "test": "mocha tmp",
-    "build": "babel src --out-dir lib",
+    "build": "babel --stage 0 src --out-dir lib",
     "validate": "npm run build && npm test",
     "prepublish": "npm run clean && npm run build",
     "clean": "rimraf lib tmp"
@@ -39,13 +39,12 @@
     "sinon": "^1.16.1"
   },
   "dependencies": {
-    "lacona-phrase": "^0.7.0",
-    "lacona-phrase-application": "0.0.1",
+    "lacona-phrase": "^0.9.1",
     "lacona-phrase-datetime": "^0.3.1",
     "lacona-phrase-email": "0.0.1",
     "lacona-phrase-file": "0.0.1",
-    "lacona-phrase-phonenumber": "0.0.1",
-    "lacona-phrase-system-state": "0.0.1",
+    "lacona-phrase-phone-number": "0.0.1",
+    "lacona-phrase-system": "0.0.1",
     "lacona-phrase-url": "0.0.1",
     "lodash": "^3.10.1"
   }
