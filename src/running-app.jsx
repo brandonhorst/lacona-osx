@@ -8,6 +8,10 @@ class RunningApps extends Source {
   data = []
 
   onCreate () {
+    this.onActivate()
+  }
+
+  onActivate () {
     fetchRunningApplications((err, apps) => {
       if (err) {
         console.error(err)
@@ -17,26 +21,18 @@ class RunningApps extends Source {
       }
     })
   }
-
-//TODO
-  onActivate () {
-  }
-
-  onDeactivate () {
-    // this.replaceData([])
-  }
 }
 
 class RunningAppObject {
   constructor(item) {
-    this.bundleId = item.id
+    this.bundleId = item.bundleId
     this.name = item.name
     this.type = 'application'
   }
 
 
   activate () {
-    launchApplication({bundleId: this.bundleId})
+    activateApplication({bundleId: this.bundleId})
   }
 
   hide () {

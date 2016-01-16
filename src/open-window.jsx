@@ -28,7 +28,11 @@ class WindowObject {
 class Windows extends Source {
 	data = []
 
-	onCreate() {
+  onCreate () {
+    this.onActivate()
+  }
+
+	onActivate () {
 		fetchOpenWindows((err, windows) => {
 			if (err) {
 				console.error(err)
@@ -41,7 +45,8 @@ class Windows extends Source {
 }
 
 export class OpenWindow extends Phrase {
-  extends = [ContentArea]
+  static extends = [ContentArea]
+  
   observe () {
 		return <Windows />
   }

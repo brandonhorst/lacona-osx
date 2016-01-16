@@ -6,9 +6,9 @@ import { ContentArea } from 'lacona-phrase-system'
 import { fetchBrowserTabs, activateBrowserTab, closeBrowserTab } from 'lacona-api'
 
 class TabObject {
-  constructor ({appName, tabId, name}) {
+  constructor ({appName, id, name}) {
     this.appName = appName
-    this.id = tabId
+    this.id = id
     this.name = name
   }
 
@@ -25,6 +25,10 @@ class Tabs extends Source {
   data = []
 
   onCreate () {
+    this.onActivate()
+  }
+
+  onActivate () {
     fetchBrowserTabs((err, tabs) => {
       if (err) {
         console.error(err)
@@ -38,6 +42,7 @@ class Tabs extends Source {
 
 export class BrowserTab extends Phrase {
   static extends = [ ContentArea ]
+  
   observe () {
     return <Tabs />
   }
