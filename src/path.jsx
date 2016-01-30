@@ -76,14 +76,14 @@ class TrueFile extends Phrase {
     return (
       <map function={this.getValue.bind(this)}>
         <choice>
-          <label text='directory'>
+          <label text='directory' suppressEmpty={false}>
             <choice>
               <literal text='' value={{prefix: '', suffix: ''}} />
               {dirElements}
             </choice>
           </label>
           {fileItems.length > 0 ?
-            <label text='file'>
+            <label text='file' suppressEmpty={false}>
               <list items={fileItems} />
             </label> :
             null

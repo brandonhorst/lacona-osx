@@ -91,36 +91,34 @@ export class RelationshipDate extends Phrase {
         const relationships = relationshipMap[relationship] || [relationship]
         const dateNames = dateMap[label] || [label]
         return (
-          <label argument={false} text='special day'>
-            <choice limit={1} value={value}>
-              {_.map(dateNames, dateName => {
-                return [
-                  _.map(relationships, oneRelationship => (
-                    <sequence>
-                      <label text='relationship'>
-                        <literal text={`my ${oneRelationship.toLowerCase()}'s`} />
-                      </label>
-                      <literal text=' ' />
-                      <label text='special day'>
-                        <literal text={dateName} />
-                      </label>
-                    </sequence>
-                  )),
-                  _.map(relationships, oneRelationship => (
-                    <sequence>
-                      <label text='relationship'>
-                        <literal text={`${_.capitalize(oneRelationship)}'s`} />
-                      </label>
-                      <literal text=' ' />
-                      <label text='special day'>
-                        <literal text={dateName} />
-                      </label>
-                    </sequence>
-                  ))
-                ]
-              })}
-            </choice>
-          </label>
+          <choice limit={1} value={value}>
+            {_.map(dateNames, dateName => {
+              return [
+                _.map(relationships, oneRelationship => (
+                  <sequence>
+                    <label text='relationship'>
+                      <literal text={`my ${oneRelationship.toLowerCase()}'s`} />
+                    </label>
+                    <literal text=' ' />
+                    <label text='special day'>
+                      <literal text={dateName} />
+                    </label>
+                  </sequence>
+                )),
+                _.map(relationships, oneRelationship => (
+                  <sequence>
+                    <label text='relationship'>
+                      <literal text={`${_.capitalize(oneRelationship)}'s`} />
+                    </label>
+                    <literal text=' ' />
+                    <label text='special day'>
+                      <literal text={dateName} />
+                    </label>
+                  </sequence>
+                ))
+              ]
+            })}
+          </choice>
         )
       })
       .value()
@@ -128,9 +126,11 @@ export class RelationshipDate extends Phrase {
     return (
       <sequence>
         {this.props.prepositions ? <literal text='on ' category='conjunction' optional limited preferred /> : null}
-        <choice merge>
-          {items}
-        </choice>
+        <label text='special day' merge>
+          <choice>
+            {items}
+          </choice>
+        </label>
       </sequence>
     )
   }

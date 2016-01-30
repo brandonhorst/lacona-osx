@@ -89,9 +89,10 @@ export class ContactDate extends Phrase {
               return _.map(possibleNames, possibleName => (
                 <sequence>
                   <label text='contact'>
-                    <literal text={`${possibleName}'s `} />
+                    <literal text={`${possibleName}'s`} />
                   </label>
-                  <label text='special date'>
+                  <literal text=' ' />
+                  <label text='special day' suppressEmpty={false}>
                     <literal text={dateName} />
                   </label>
                 </sequence>
@@ -105,9 +106,11 @@ export class ContactDate extends Phrase {
     return (
       <sequence>
         {this.props.prepositions ? <literal text='on ' category='conjunction' optional limited preferred /> : null}
-        <choice limit={10}>
-          {items}
-        </choice>
+        <label text='special day' merge>
+          <choice limit={10}>
+            {items}
+          </choice>
+        </label>
       </sequence>
     )
   }

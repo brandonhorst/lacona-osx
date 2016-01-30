@@ -31,7 +31,7 @@ export class PersonalDate extends Phrase {
     return (
       <sequence>
         {this.props.prepositions ? <literal text='on ' optional preferred limited category='conjunction' /> : null}
-        <label text='special date' merge>
+        <label text='special day' merge>
           <list items={items} />
         </label>
       </sequence>
