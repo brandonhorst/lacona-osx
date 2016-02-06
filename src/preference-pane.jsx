@@ -20,18 +20,18 @@ class Panes extends Source {
   data = []
 
   onCreate () {
-    this.onActivate()
+    this.query = fetchPreferencePanes()
+      .on('data', (data) => {
+        this.setData(_.map(data, (item) => new PaneObject(item)))
+      }).on('error', (err) => {
+        console.error(err)
+        this.setData([])
+      })
   }
 
-  onActivate () {
-    fetchPreferencePanes((err, panes) => {
-      if (err) {
-        console.error(err)
-      } else {
-        const trueData = _.map(panes, pane => new PaneObject(pane))
-        this.setData(trueData)
-      }
-    })
+  onDestroy () {
+    this.query.cancel()
+    delete this.query
   }
 }
 

@@ -6,45 +6,41 @@ import { searchFiles } from 'lacona-api'
 import { dirname, basename } from 'path'
 
 class Files extends Source {
-  static preventSharing = true
-
   data = []
 
-  fetch (input) {
-    searchFiles(input, (err, files) => {
-      if (err) {
+  onCreate () {
+    this.query = searchFiles({query: this.props.query})
+      .on('data', (data) => {
+        this.setData(data)
+      }).on('error', (err) => {
         console.error(err)
-      } else {
-        if (!_.isEqual(files, this.data)) {
-          this.setData(files)
-        }
-      }
-    })
+        this.setData([])
+      })
   }
+
+  onDestroy () {
+    this.query.cancel()
+    delete this.query
+  }
+}
+
+
+function observe (input) {
+  return <Files query={input} />
+}
+
+function describe (data) {
+  const items = _.map(data, ({path}) => ({text: basename(path), value: path}))
+  return <list items={items} />
 }
 
 export class File extends Phrase {
   static extends = [BaseFile]
 
-  observe () {
-    return <Files />
-  }
-
-  describe () {
-    const files = _.map(this.source.data, ({path}) => {
-      return (
-        <sequence value={path}>
-          <literal decorate allowInput={false} text={`${dirname(path)}/`} />
-          <literal text={basename(path)} />
-        </sequence>
-      )
-    })
-
+  describe (data = []) {
     return (
       <label text='file'>
-        <tap function={this.source.fetch.bind(this.source)}>
-          <choice>{files}</choice>
-        </tap>
+        <dynamic observe={observe} describe={describe} greedy />
       </label>
     )
   }

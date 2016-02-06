@@ -28,18 +28,18 @@ class Applications extends Source {
   data = []
 
   onCreate () {
-    this.onActivate()
+    this.query = fetchApplications()
+      .on('data', (data) => {
+        this.setData(_.map(data, (item) => new AppObject(item)))
+      }).on('error', (err) => {
+        console.error(err)
+        this.setData([])
+      })
   }
 
-  onActivate () {
-    fetchApplications((err, apps) => {
-      if (err) {
-        console.error(err)
-      } else {
-        const objs = _.map(apps, app => new AppObject(app))
-        this.setData(objs)
-      }
-    })
+  onDestroy () {
+    this.query.cancel()
+    delete this.query
   }
 }
 

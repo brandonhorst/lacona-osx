@@ -13,17 +13,18 @@ class Bookmarks extends Source {
   data = []
 
   onCreate () {
-    this.onActivate()
+    this.query = fetchBookmarks()
+      .on('data', (data) => {
+        this.setData(data)
+      }).on('error', (err) => {
+        console.error(err)
+        this.setData([])
+      })
   }
 
-  onActivate () {
-    fetchBookmarks((err, data) => {
-      if (err) {
-        console.error(err)
-      } else {
-        this.setData(data)
-      }
-    })
+  onDestroy () {
+    this.query.cancel()
+    delete this.query
   }
 }
 
