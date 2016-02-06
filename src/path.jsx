@@ -32,7 +32,7 @@ export class Path extends Phrase {
   describe (data = []) {
     return (
       <label text='path'>
-        <dynamic observe={observe} describe={describe} greedy limit={1} splitOn=' ' />
+        <dynamic observe={observe} describe={describe} greedy limit={1} />
       </label>
     )
   }

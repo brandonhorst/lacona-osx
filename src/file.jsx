@@ -13,7 +13,7 @@ class Files extends Source {
       .on('data', (data) => {
         this.setData(data)
       }).on('error', (err) => {
-        console.error(err)
+        console.log(err)
         this.setData([])
       })
   }
@@ -26,7 +26,9 @@ class Files extends Source {
 
 
 function observe (input) {
-  return <Files query={input} />
+  if (input != null) {
+    return <Files query={input.toLowerCase()} />
+  }
 }
 
 function describe (data) {
