@@ -17,7 +17,7 @@ import { RunningApp } from './running-app'
 import { SystemCommand } from './command'
 import { Volume } from './volume'
 
-export const extensions = [App, Bookmark, /*BrowserTab,*/ ContactDate, ContactEmail, ContactPhoneNumber, File, Holiday, /*OpenWindow,*/ Path, PersonalDate, Pane, RelationshipDate, RelationshipEmail, RelationshipPhoneNumber, RunningApp, SystemCommand, Volume]
+export const extensions = [App, Bookmark, /*BrowserTab,*/ ContactDate, ContactEmail, ContactPhoneNumber, File, /* Holiday, OpenWindow,*/ Path, PersonalDate, Pane, RelationshipDate, RelationshipEmail, RelationshipPhoneNumber, RunningApp, SystemCommand, Volume]
 
 // export default {
 //   extensions: [App, Bookmark, Email, PhoneNumber, File],

@@ -31,19 +31,35 @@ function observe (input) {
   }
 }
 
-function describe (data) {
-  const items = _.map(data, ({path}) => ({text: basename(path), value: path}))
+function describeFiles (data) {
+  const items = _.chain(data)
+    .filter(({contentType}) => contentType !== 'public.folder')
+    .map(({path}) => ({text: basename(path), value: path}))
+    .value()
+  return <list items={items} />
+}
+
+function describeFolders (data) {
+  const items = _.chain(data)
+    .filter(({contentType}) => contentType === 'public.folder')
+    .map(({path}) => ({text: basename(path), value: path}))
+    .value()
   return <list items={items} />
 }
 
 export class File extends Phrase {
   static extends = [BaseFile]
 
-  describe (data = []) {
+  describe () {
     return (
-      <label text='file'>
-        <dynamic observe={observe} describe={describe} greedy />
-      </label>
+      <choice>
+        <label text='folder'>
+          <dynamic observe={observe} describe={describeFolders} greedy />
+        </label>
+        <label text='file'>
+          <dynamic observe={observe} describe={describeFiles} greedy />
+        </label>
+      </choice>
     )
   }
 }

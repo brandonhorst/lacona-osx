@@ -2,7 +2,7 @@
 import _ from 'lodash'
 import { Application } from 'lacona-phrase-system'
 import { createElement, Phrase, Source } from 'lacona-phrase'
-import { fetchApplications, launchApplication, openURLInApplication, openFileInApplication } from 'lacona-api'
+import { bundleIdForApplication, fetchApplications, launchApplication, openURLInApplication, openFileInApplication, Config } from 'lacona-api'
 
 class AppObject {
   constructor({bundleId, name}) {
@@ -27,14 +27,31 @@ class AppObject {
 class Applications extends Source {
   data = []
 
-  onCreate () {
-    this.query = fetchApplications()
-      .on('data', (data) => {
-        this.setData(_.map(data, (item) => new AppObject(item)))
-      }).on('error', (err) => {
-        console.error(err)
-        this.setData([])
-      })
+  observe () {
+    return <Config property='applications' />
+  }
+
+  onCreate() {
+    this.onUpdate()
+  }
+
+  onUpdate () {
+    const specificApps = _.chain(this.source.data.applications)
+      .map(name => ({bundleId: bundleIdForApplication({name}), name}))
+      .filter(item => item.bundleId == null)
+      .map(name => new AppObject(item))
+      .value()
+
+    this.query = fetchApplications({
+      directories: this.source.data.directories
+    }).on('data', (data) => {
+      const searchDirs = _.map(data, (item) => new AppObject(item))
+
+      this.setData(searchDirs.concat(specificApps))
+    }).on('error', (err) => {
+      console.error(err)
+      this.setData([])
+    })
   }
 
   onDestroy () {
@@ -58,7 +75,7 @@ export class App extends Phrase {
 
     return (
       <label text='application'>
-        <list fuzzy items={apps} limit={10} />
+        <list fuzzy items={apps} limit={10} score={1} />
       </label>
     )
   }

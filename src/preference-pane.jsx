@@ -47,7 +47,7 @@ export class Pane extends Phrase {
 
     return (
       <label text='preference pane'>
-        <list fuzzy items={panes} limit={10} />
+        <list fuzzy items={panes} limit={10} score={1} />
       </label>
     )
   }
