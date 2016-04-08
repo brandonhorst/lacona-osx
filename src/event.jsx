@@ -1,33 +1,36 @@
 /** @jsx createElement */
 
 import _ from 'lodash'
-import { createElement, Phrase, Source } from 'lacona-phrase'
-import { Date as DatePhrase } from 'lacona-phrase-datetime'
+import { createElement } from 'elliptical'
+import { Date as DatePhrase } from 'elliptical-datetime'
 import { isDemo } from 'lacona-api'
+import { Observable } from 'rxjs/Observable'
 
-class HolidaySource extends Source {
-  data = []
+const Holidays = {
+  fetch () {
+    return new Observable((observer) => {
+      observer.next([])
 
-  onCreate () {
-    if (isDemo()) {
-      this.setData(global.demoData.usHolidays)
-    }
+      if (isDemo()) {
+        observer.next(global.demoData.usHolidays)
+      }
+    })
   }
 }
 
-export class Holiday extends Phrase {
-  static extends = [DatePhrase]
+export const Holiday = {
+  extends: [DatePhrase],
   
   observe () {
-    return <HolidaySource />
-  }
+    return <Holidays />
+  },
 
-  describe () {
-    if (this.source.data.length === 0) return
+  describe ({data}) {
+    if (data.length === 0) return
 
     return (
       <label text='holiday'>
-        <list items={this.source.data} limit={10} />
+        <list items={data} limit={10} />
       </label>
     )
   }

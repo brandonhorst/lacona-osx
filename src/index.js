@@ -4,7 +4,7 @@
 
 import { App } from './app'
 import { Bookmark } from './bookmark'
-// import { BrowserTab } from './browser-tab'
+// // import { BrowserTab } from './browser-tab'
 import { ContactDate, ContactEmail, ContactPhoneNumber } from './contact'
 import { RelationshipDate, RelationshipPhoneNumber, RelationshipEmail } from './relationship'
 import { PersonalDate } from './me'
@@ -17,7 +17,7 @@ import { RunningApp } from './running-app'
 import { SystemCommand } from './command'
 import { Volume } from './volume'
 
-export const extensions = [App, Bookmark, /*BrowserTab,*/ ContactDate, ContactEmail, ContactPhoneNumber, File, /* Holiday, OpenWindow,*/ Path, PersonalDate, Pane, RelationshipDate, RelationshipEmail, RelationshipPhoneNumber, RunningApp, SystemCommand, Volume]
+export const extensions = [App, Bookmark, /*BrowserTab,*/ ContactDate, ContactEmail, ContactPhoneNumber, File,  Holiday, /*OpenWindow,*/ Path, PersonalDate, Pane, RelationshipDate, RelationshipEmail, RelationshipPhoneNumber, RunningApp, SystemCommand, Volume]
 
 // export default {
 //   extensions: [App, Bookmark, Email, PhoneNumber, File],

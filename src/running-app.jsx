@@ -1,24 +1,23 @@
 /** @jsx createElement */
 import _ from 'lodash'
-import { createElement, Phrase, Source } from 'lacona-phrase'
-import { RunningApplication } from 'lacona-phrase-system'
+import { createElement } from 'elliptical'
+import { RunningApplication } from 'lacona-phrases'
 import { fetchRunningApplications, activateApplication, hideApplication, closeApplicationWindows, quitApplication } from 'lacona-api'
+import {Observable} from 'rxjs/Observable'
 
-class RunningApps extends Source {
-  data = []
+const RunningApps = {
+  fetch () {
+    return new Observable((observer) => {
+      observer.next([])
 
-  onCreate () {
-    this.onActivate()
-  }
-
-  onActivate () {
-    fetchRunningApplications((err, apps) => {
-      if (err) {
-        console.error(err)
-      } else {
-        const trueData = _.map(apps, app => new RunningAppObject(app))
-        this.setData(trueData)
-      }
+      fetchRunningApplications((err, apps) => {
+        if (err) {
+          console.error(err)
+        } else {
+          const trueData = _.map(apps, app => new RunningAppObject(app))
+          observer.next(trueData)
+        }
+      })
     })
   }
 }
@@ -48,13 +47,14 @@ class RunningAppObject {
   }
 }
 
-export class RunningApp extends Phrase {
+export const RunningApp = {
+  extends: [RunningApplication],
   observe () {
     return <RunningApps />
-  }
+  },
 
-  describe () {
-    const apps = _.map(this.source.data, app => ({text: app.name, value: app}))
+  describe ({data}) {
+    const apps = _.map(data, app => ({text: app.name, value: app}))
 
     return (
       <label text='application'>
@@ -63,4 +63,3 @@ export class RunningApp extends Phrase {
     )
   }
 }
-RunningApp.extends = [RunningApplication]

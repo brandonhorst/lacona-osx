@@ -1,92 +1,87 @@
 /** @jsx createElement */
 
 import _ from 'lodash'
-import { createElement, Phrase } from 'lacona-phrase'
-import { Day } from 'lacona-phrase-datetime'
-import { EmailAddress } from 'lacona-phrase-email'
-import { PhoneNumber } from 'lacona-phrase-phone-number'
+import { createElement } from 'elliptical'
+import { Day } from 'elliptical-datetime'
+import { EmailAddress } from 'elliptical-email'
+import { PhoneNumber } from 'elliptical-phone'
 import { dateMap, relationshipMap } from './constant-maps'
 import { spread, spreadObject, UserContact } from './contact-sources'
 
-const relationships = (
-  <map function={_.partial(spreadObject, _, 'relationships', ['phoneNumbers', 'emails', 'dates'], null, 'relationship')}>
-    <UserContact />
-  </map>
-)
-
-class RelationshipPhrase extends Phrase {
-  describe () {
-    const items = _.chain(this.source.data)
-      .map(({relationship, value, label}) => {
-        const relationships = relationshipMap[relationship] || [relationship]
-        return (
-          <choice limit={1} value={value}>
-            {_.map(relationships, oneRelationship => <literal text={`my ${oneRelationship.toLowerCase()}`} />)}
-            {_.map(relationships, oneRelationship => <literal text={`${_.capitalize(oneRelationship)}`} />)}
-          </choice>
-        )
-      })
-      .value()
-
-    return (
-      <label text='relationship'>
-        <choice>
-          {items}
-        </choice>
-      </label>
-    )
-  }
+function spreadRelationships (obj) {
+  return spreadObject(obj, 'relationships', ['phoneNumbers', 'emails', 'dates'], null, 'relationship')
 }
 
 function spreadPhoneNumbers (ary) {
   return spread(ary, 'phoneNumbers', ['relationship'])
 }
 
-export class RelationshipPhoneNumber extends RelationshipPhrase {
-  static extends = [PhoneNumber]
-
-  observe () {
-    return (
-      <map function={spreadPhoneNumbers}>
-        {relationships}
-      </map>
-    )
-  }
-}
-
 function spreadEmails (ary) {
   return spread(ary, 'emails', ['relationship'])
-}
-
-export class RelationshipEmail extends RelationshipPhrase {
-  static extends = [EmailAddress]
-
-  observe () {
-    return (
-      <map function={spreadEmails}>
-        {relationships}
-      </map>
-    )
-  }
 }
 
 function spreadDates (ary) {
   return spread(ary, 'dates', ['relationship'])
 }
 
-export class RelationshipDate extends Phrase {
-  static extends = [Day]
+function describeRelationship (data) {
+  const items = _.chain(data)
+    .map(({relationship, value, label}) => {
+      const relationships = relationshipMap[relationship] || [relationship]
+      return (
+        <choice limit={1} value={value}>
+          {_.map(relationships, oneRelationship => <literal text={`my ${oneRelationship.toLowerCase()}`} />)}
+          {_.map(relationships, oneRelationship => <literal text={`${_.capitalize(oneRelationship)}`} />)}
+        </choice>
+      )
+    })
+    .value()
+
+  return (
+    <label text='relationship'>
+      <choice>
+        {items}
+      </choice>
+    </label>
+  )
+}
+
+export const RelationshipPhoneNumber = {
+  extends: [PhoneNumber],
 
   observe () {
-    return (
-      <map function={spreadDates}>
-        {relationships}
-      </map>
-    )
-  }
+    return <UserContact />
+  },
 
-  describe () {
-    const items = _.chain(this.source.data)
+  describe ({data}) {
+    const phoneNumbers = spreadPhoneNumbers(spreadRelationships(data))
+    return describeRelationship(phoneNumbers)
+  }
+}
+
+export const RelationshipEmail = {
+  extends: [EmailAddress],
+
+  observe () {
+    return <UserContact />
+  },
+
+  describe ({data}) {
+    const emails = spreadEmails(spreadRelationships(data))
+    return describeRelationship(emails)
+  }
+}
+
+export const RelationshipDate = {
+  extends: [Day],
+
+  observe () {
+    return <UserContact />
+  },
+
+  describe ({data, props}) {
+    const dates = spreadDates(spreadRelationships(data))
+    const items = _.chain(dates)
       .map(({relationship, value, label}) => {
         const relationships = relationshipMap[relationship] || [relationship]
         const dateNames = dateMap[label] || [label]
@@ -125,7 +120,7 @@ export class RelationshipDate extends Phrase {
 
     return (
       <sequence>
-        {this.props.prepositions ? <literal text='on ' category='conjunction' optional limited preferred /> : null}
+        {props.prepositions ? <literal text='on ' category='conjunction' optional limited preferred /> : null}
         <label text='special day' merge>
           <choice>
             {items}

@@ -2,11 +2,11 @@
 
 import _ from 'lodash'
 import { Contacts, possibleNameCombinations, spread } from './contact-sources'
-import { createElement, Phrase, Source } from 'lacona-phrase'
-import { Day } from 'lacona-phrase-datetime'
+import { createElement } from 'elliptical'
+import { Day } from 'elliptical-datetime'
 import { dateMap } from './constant-maps'
-import { EmailAddress } from 'lacona-phrase-email'
-import { PhoneNumber } from 'lacona-phrase-phone-number'
+import { EmailAddress } from 'elliptical-email'
+import { PhoneNumber } from 'elliptical-phone'
 
 function elementsFromContacts (data) {
   const elements = _.chain(data)
@@ -27,59 +27,53 @@ function elementsFromContacts (data) {
   )
 }
 
-class ContactPhrase extends Phrase {
-  describe () {
-    return elementsFromContacts(this.source.data)
-  }
-}
-
-function spreadEmails (ary) {
+function  spreadEmails (ary) {
   return spread(ary, 'emails', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])
 }
 
-export class ContactEmail extends ContactPhrase {
-  static extends = [EmailAddress]
-  observe () {
-    return (
-      <map function={spreadEmails}>
-        <Contacts />
-      </map>
-    )
-  }
-}
-
-function spreadPhoneNumbers (ary) {
+function  spreadPhoneNumbers (ary) {
   return spread(ary, 'phoneNumbers', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])
 }
 
-export class ContactPhoneNumber extends ContactPhrase {
-  static extends = [PhoneNumber]
-  observe () {
-    return (
-      <map function={spreadPhoneNumbers}>
-        <Contacts />
-      </map>
-    )
-  }
-}
-
-function spreadDates (ary) {
+function  spreadDates (ary) {
   return spread(ary, 'dates', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])
 }
 
-export class ContactDate extends Phrase {
-  static extends = [Day]
+export const ContactEmail = {
+  extends: [EmailAddress],
+  observe () {
+    return <Contacts />
+  },
+
+  describe({data}) {
+    const emails = spreadEmails(data)
+    return elementsFromContacts(emails)
+  }
+}
+
+export const ContactPhoneNumber = {
+  extends: [PhoneNumber],
 
   observe () {
-    return (
-      <map function={spreadDates}>
-        <Contacts />
-      </map>
-    )
+    return <Contacts />
+  },
+  
+  describe({data}) {
+    const phoneNumbers = spreadPhoneNumbers(data)
+    return elementsFromContacts(phoneNumbers)
   }
+}
 
-  describe () {
-    const items = _.chain(this.source.data)
+export const ContactDate = {
+  extends: [Day],
+
+  observe () {
+    return <Contacts />
+  },
+
+  describe ({data, props}) {
+    const dates = spreadDates(data)
+    const items = _.chain(dates)
       .map(({firstName, middleName, lastName, nickname, company, value, label}) => {
         const dateNames = dateMap[label] || [label]
         const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname})
@@ -105,7 +99,7 @@ export class ContactDate extends Phrase {
 
     return (
       <sequence>
-        {this.props.prepositions ? <literal text='on ' category='conjunction' optional limited preferred /> : null}
+        {props.prepositions ? <literal text='on ' category='conjunction' optional limited preferred /> : null}
         <label text='special day' merge>
           <choice limit={10}>
             {items}

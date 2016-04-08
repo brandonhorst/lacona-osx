@@ -1,8 +1,9 @@
 /** @jsx createElement */
 import _ from 'lodash'
-import { createElement, Phrase, Source } from 'lacona-phrase'
-import { MountedVolume } from 'lacona-phrase-system'
+import { createElement } from 'elliptical'
+import { MountedVolume } from 'lacona-phrases'
 import { openFile, unmountVolume, fetchMountedVolumes } from 'lacona-api'
+import {Observable} from 'rxjs/Observable'
 
 class VolumeObject {
   constructor ({name, path, canOpen, canEject}) {
@@ -30,23 +31,23 @@ class VolumeObject {
   }
 }
 
-class Volumes extends Source {
-  data = []
+const Volumes = {
+  fetch () {
+    return new Observable((observer) => {
+      observer.next([])
 
-  onCreate() {
-    this.onActivate()
-  }
-
-  onActivate () {
-    fetchMountedVolumes((err, volumes) => {
-      if (err) {
-        console.error(err)
-      } else {
-        const volumeObjects = _.map(volumes, volume => new VolumeObject(volume))
-        this.setData(volumeObjects)
-      }
+      fetchMountedVolumes((err, volumes) => {
+        if (err) {
+          observer.next([])
+          console.error(err)
+        } else {
+          const volumeObjects = _.map(volumes, volume => new VolumeObject(volume))
+          observer.next(volumeObjects)
+        }
+      })
     })
   }
+}
 
   // TODO activate deactivate
   // onActivate () {
@@ -58,17 +59,16 @@ class Volumes extends Source {
   // onDeactivate () {
   //   this.replaceData([])
   // }
-}
 
-export class Volume extends Phrase {
-  static extends = [MountedVolume]
+export const Volume = {
+  extends: [MountedVolume],
 
   observe () {
     return <Volumes />
-  }
+  },
 
-  describe () {
-    const volumes = _.chain(this.source.data)
+  describe ({data}) {
+    const volumes = _.chain(data)
       .map(obj => ({text: obj.name, value: obj}))
       .value()
 

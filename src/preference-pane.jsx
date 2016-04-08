@@ -1,8 +1,9 @@
 /** @jsx createElement */
 import _ from 'lodash'
-import { PreferencePane } from 'lacona-phrase-system'
-import { createElement, Phrase, Source } from 'lacona-phrase'
+import { PreferencePane } from 'lacona-phrases'
+import { createElement } from 'elliptical'
 import { fetchPreferencePanes, openFile } from 'lacona-api'
+import { map } from 'rxjs/operator/map'
 
 class PaneObject {
   constructor ({path, name}) {
@@ -16,34 +17,23 @@ class PaneObject {
   }
 }
 
-class Panes extends Source {
-  data = []
-
-  onCreate () {
-    this.query = fetchPreferencePanes()
-      .on('data', (data) => {
-        this.setData(_.map(data, (item) => new PaneObject(item)))
-      }).on('error', (err) => {
-        console.error(err)
-        this.setData([])
-      })
-  }
-
-  onDestroy () {
-    this.query.cancel()
-    delete this.query
+const Panes = {
+  fetch () {
+    return fetchPreferencePanes()::map((data) => {
+      return _.map(data, (item) => new PaneObject(item))
+    })
   }
 }
 
-export class Pane extends Phrase {
-  static extends = [PreferencePane]
+export const Pane = {
+  extends: [PreferencePane],
 
   observe () {
     return <Panes />
-  }
+  },
 
-  describe () {
-    const panes = _.map(this.source.data, pane => ({text: pane.name, value: pane}))
+  describe ({data}) {
+    const panes = _.map(data, pane => ({text: pane.name, value: pane}))
 
     return (
       <label text='preference pane'>

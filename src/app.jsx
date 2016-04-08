@@ -1,7 +1,8 @@
 /** @jsx createElement */
 import _ from 'lodash'
-import { Application } from 'lacona-phrase-system'
-import { createElement, Phrase, Source } from 'lacona-phrase'
+import { Application } from 'lacona-phrases'
+import { createElement } from 'elliptical'
+import { map } from 'rxjs/operator/map'
 import { bundleIdForApplication, fetchApplications, launchApplication, openURLInApplication, openFileInApplication, Config } from 'lacona-api'
 
 class AppObject {
@@ -24,58 +25,41 @@ class AppObject {
   }
 }
 
-class Applications extends Source {
-  data = []
+function getSpecificApps (applications) {
+  return _.chain(applications)
+    .map(name => ({bundleId: bundleIdForApplication({name}), name}))
+    .filter(item => item.bundleId != null)
+    .value()
+}
 
-  observe () {
-    return <Config property='applications' />
-  }
-
-  onCreate() {
-    this.onUpdate()
-  }
-
-  onUpdate () {
-    const specificApps = _.chain(this.source.data.applications)
-      .map(name => ({bundleId: bundleIdForApplication({name}), name}))
-      .filter(item => item.bundleId == null)
-      .map(name => new AppObject(item))
-      .value()
-
-    this.query = fetchApplications({
-      directories: this.source.data.directories
-    }).on('data', (data) => {
-      const searchDirs = _.map(data, (item) => new AppObject(item))
-
-      this.setData(searchDirs.concat(specificApps))
-    }).on('error', (err) => {
-      console.error(err)
-      this.setData([])
+const Applications = {
+  fetch ({props}) {
+    return fetchApplications({
+      directories: props.config.searchDirectories
+    })::map((data) => {
+      return data.concat(getSpecificApps(props.config.applications))
+    })::map((data) => {
+      return _.map(data, (item) => new AppObject(item))
     })
-  }
-
-  onDestroy () {
-    this.query.cancel()
-    delete this.query
   }
 }
 
-export class App extends Phrase {
-  static extends = [Application]
+export const App = {
+  extends: [Application],
 
-  observe () {
-    return <Applications />
-  }
+  observe ({context}) {
+    return <Applications config={context.config.applications} />
+  },
 
-  describe() {
-    const apps = _.map(this.source.data, app => ({
+  describe({data}) {
+    const apps = _.map(data, app => ({
       text: app.name,
       value: app
     }))
 
     return (
       <label text='application'>
-        <list fuzzy items={apps} limit={10} score={1} />
+        <list strategy='fuzzy' items={apps} limit={10} />
       </label>
     )
   }

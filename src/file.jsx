@@ -1,29 +1,16 @@
 /** @jsx createElement */
 import _ from 'lodash'
-import { createElement, Phrase, Source } from 'lacona-phrase'
-import { File as BaseFile } from 'lacona-phrase-file'
+import { createElement } from 'elliptical'
+import { File as BaseFile } from 'lacona-phrases'
 import { searchFiles } from 'lacona-api'
 import { dirname, basename } from 'path'
 
-class Files extends Source {
-  data = []
-
-  onCreate () {
-    this.query = searchFiles({query: this.props.query})
-      .on('data', (data) => {
-        this.setData(data)
-      }).on('error', (err) => {
-        console.log(err)
-        this.setData([])
-      })
-  }
-
-  onDestroy () {
-    this.query.cancel()
-    delete this.query
-  }
+const Files = {
+  fetch ({props}) {
+    return searchFiles({query: props.query})
+  },
+  clear: true
 }
-
 
 function observe (input) {
   if (input != null) {
@@ -31,7 +18,7 @@ function observe (input) {
   }
 }
 
-function describeFiles (data) {
+function describeFiles ({data}) {
   const items = _.chain(data)
     .filter(({contentType}) => contentType !== 'public.folder')
     .map(({path}) => ({text: basename(path), value: path}))
@@ -39,7 +26,7 @@ function describeFiles (data) {
   return <list items={items} />
 }
 
-function describeFolders (data) {
+function describeFolders ({data}) {
   const items = _.chain(data)
     .filter(({contentType}) => contentType === 'public.folder')
     .map(({path}) => ({text: basename(path), value: path}))
@@ -47,9 +34,8 @@ function describeFolders (data) {
   return <list items={items} />
 }
 
-export class File extends Phrase {
-  static extends = [BaseFile]
-
+export const File = {
+  extends: [BaseFile],
   describe () {
     return (
       <choice>

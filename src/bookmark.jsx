@@ -1,7 +1,8 @@
 /** @jsx createElement */
-import { createElement, Phrase, Source } from 'lacona-phrase'
-import { URL } from 'lacona-phrase-url'
+import { createElement } from 'elliptical'
+import { URL } from 'elliptical-url'
 import { fetchBookmarks } from 'lacona-api'
+import { map } from 'rxjs/operator/map'
 
 /* for when I want to support Chrome
 tell application "Google Chrome"
@@ -9,33 +10,20 @@ tell application "Google Chrome"
 end tell
 */
 
-class Bookmarks extends Source {
-  data = []
-
-  onCreate () {
-    this.query = fetchBookmarks()
-      .on('data', (data) => {
-        this.setData(data)
-      }).on('error', (err) => {
-        console.error(err)
-        this.setData([])
-      })
-  }
-
-  onDestroy () {
-    this.query.cancel()
-    delete this.query
+const Bookmarks = {
+  fetch () {
+    return fetchBookmarks()
   }
 }
 
-export class Bookmark extends Phrase {
-  static extends = [URL]
+export const Bookmark = {
+  extends: [URL],
   observe () {
     return <Bookmarks />
-  }
+  },
 
-  describe () {
-    const bookmarks = this.source.data.map(bookmark => ({text: bookmark.name, value: bookmark.url}))
+  describe ({data}) {
+    const bookmarks = data.map(bookmark => ({text: bookmark.name, value: bookmark.url}))
 
     return (
       <label text='bookmark'>
