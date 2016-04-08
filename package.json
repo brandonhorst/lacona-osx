@@ -41,13 +41,13 @@
     "sinon": "^1.17.3"
   },
   "dependencies": {
-    "elliptical": "^1.0.0-rc9",
-    "elliptical-datetime": "^1.0.0-rc1",
+    "elliptical": "^1.0.0-rc10",
+    "elliptical-datetime": "^1.0.0-rc3",
     "elliptical-email": "^1.0.0-rc2",
     "elliptical-phone": "^1.0.0-rc2",
     "elliptical-url": "^1.0.0-rc2",
-    "lacona-api": "0.1.0",
-    "lacona-command": "^0.2.0",
+    "lacona-api": "0.1.1",
+    "lacona-command": "^0.2.1",
     "lacona-phrases": "0.0.2",
     "lodash": "^4.9.0",
     "rxjs": "^5.0.0-beta.5"
