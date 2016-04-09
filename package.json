@@ -46,7 +46,7 @@
     "elliptical-email": "^1.0.0-rc2",
     "elliptical-phone": "^1.0.0-rc2",
     "elliptical-url": "^1.0.0-rc2",
-    "lacona-api": "0.1.1",
+    "lacona-api": "0.1.2",
     "lacona-command": "^0.2.1",
     "lacona-phrases": "0.0.2",
     "lodash": "^4.9.0",
