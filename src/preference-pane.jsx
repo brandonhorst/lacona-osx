@@ -10,6 +10,7 @@ class PaneObject {
     this.path = path
     this.name = name
     this.type = 'preference pane'
+    this.limitId = 'preference-pane'
   }
 
   open () {

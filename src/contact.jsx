@@ -8,6 +8,7 @@ import { dateMap } from './constant-maps'
 import { EmailAddress } from 'elliptical-email'
 import { PhoneNumber } from 'elliptical-phone'
 import { ContactCard } from 'lacona-phrases'
+import { openURL } from 'lacona-api'
 import * as constantMaps from './constant-maps'
 
 function spreadElementsFromContacts (data, map) {
@@ -28,11 +29,23 @@ function spreadElementsFromContacts (data, map) {
   )
 }
 
+class ContactObject {
+  constructor ({id, name}) {
+    this.id = id
+    this.name = name
+    this.type = 'contact card'
+    this.limitId = 'contact-card'
+  }
+
+  open () {
+    openURL({url: `addressbook://${this.id}`})
+  }
+}
 
 function contactElementsFromContacts (data) {
   const elements = _.map(data, ({firstName, middleName, lastName, nickname, company, id}) => {
     const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname, company})
-    const value = `addressbook://${id}`
+    const value = new ContactObject({id, name: possibleNames[0]})
     const items = _.map(possibleNames, text => ({text, value}))
 
     return <list items={items} limit={1} />
