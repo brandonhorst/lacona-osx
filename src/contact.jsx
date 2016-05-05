@@ -7,12 +7,14 @@ import { Day } from 'elliptical-datetime'
 import { dateMap } from './constant-maps'
 import { EmailAddress } from 'elliptical-email'
 import { PhoneNumber } from 'elliptical-phone'
+import * as constantMaps from './constant-maps'
 
-function elementsFromContacts (data) {
+function elementsFromContacts (data, map) {
   const elements = _.chain(data)
     .map(({firstName, middleName, lastName, nickname, company, value, label}) => {
       const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname, company})
-      const items = _.map(possibleNames, text => ({text, value}))
+      const qualifiers = [map[label] ? map[label][0] : label]
+      const items = _.map(possibleNames, text => ({text, value, qualifiers}))
 
       return <list items={items} limit={1} />
     })
@@ -27,15 +29,15 @@ function elementsFromContacts (data) {
   )
 }
 
-function  spreadEmails (ary) {
+function spreadEmails (ary) {
   return spread(ary, 'emails', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])
 }
 
-function  spreadPhoneNumbers (ary) {
+function spreadPhoneNumbers (ary) {
   return spread(ary, 'phoneNumbers', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])
 }
 
-function  spreadDates (ary) {
+function spreadDates (ary) {
   return spread(ary, 'dates', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])
 }
 
@@ -47,7 +49,7 @@ export const ContactEmail = {
 
   describe({data}) {
     const emails = spreadEmails(data)
-    return elementsFromContacts(emails)
+    return elementsFromContacts(emails, constantMaps.emailLabelMap)
   }
 }
 
@@ -60,7 +62,7 @@ export const ContactPhoneNumber = {
   
   describe({data}) {
     const phoneNumbers = spreadPhoneNumbers(data)
-    return elementsFromContacts(phoneNumbers)
+    return elementsFromContacts(phoneNumbers, constantMaps.phoneNumberMap)
   }
 }
 
