@@ -7,18 +7,36 @@ import { Day } from 'elliptical-datetime'
 import { dateMap } from './constant-maps'
 import { EmailAddress } from 'elliptical-email'
 import { PhoneNumber } from 'elliptical-phone'
+import { ContactCard } from 'lacona-phrases'
 import * as constantMaps from './constant-maps'
 
-function elementsFromContacts (data, map) {
-  const elements = _.chain(data)
-    .map(({firstName, middleName, lastName, nickname, company, value, label}) => {
-      const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname, company})
-      const qualifiers = [map[label] ? map[label][0] : label]
-      const items = _.map(possibleNames, text => ({text, value, qualifiers}))
+function spreadElementsFromContacts (data, map) {
+  const elements = _.map(data, ({firstName, middleName, lastName, nickname, company, value, label}) => {
+    const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname, company})
+    const qualifiers = [map[label] ? map[label][0] : label]
+    const items = _.map(possibleNames, text => ({text, value, qualifiers}))
 
-      return <list items={items} limit={1} />
-    })
-    .value()
+    return <list items={items} limit={1} />
+  })
+
+  return (
+    <label text='contact'>
+      <choice limit={10}>
+        {elements}
+      </choice>
+    </label>
+  )
+}
+
+
+function contactElementsFromContacts (data) {
+  const elements = _.map(data, ({firstName, middleName, lastName, nickname, company, id}) => {
+    const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname, company})
+    const value = `addressbook://${id}`
+    const items = _.map(possibleNames, text => ({text, value}))
+
+    return <list items={items} limit={1} />
+  })
 
   return (
     <label text='contact'>
@@ -41,15 +59,26 @@ function spreadDates (ary) {
   return spread(ary, 'dates', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])
 }
 
+export const Contact = {
+  extends: [ContactCard],
+  observe () {
+    return <Contacts />
+  },
+
+  describe ({data}) {
+    return contactElementsFromContacts(data)
+  }
+}
+
 export const ContactEmail = {
   extends: [EmailAddress],
   observe () {
     return <Contacts />
   },
 
-  describe({data}) {
+  describe ({data}) {
     const emails = spreadEmails(data)
-    return elementsFromContacts(emails, constantMaps.emailLabelMap)
+    return spreadElementsFromContacts(emails, constantMaps.emailLabelMap)
   }
 }
 
@@ -60,9 +89,9 @@ export const ContactPhoneNumber = {
     return <Contacts />
   },
   
-  describe({data}) {
+  describe ({data}) {
     const phoneNumbers = spreadPhoneNumbers(data)
-    return elementsFromContacts(phoneNumbers, constantMaps.phoneNumberMap)
+    return spreadElementsFromContacts(phoneNumbers, constantMaps.phoneNumberMap)
   }
 }
 
