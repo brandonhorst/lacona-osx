@@ -47,8 +47,8 @@ const Applications = {
 export const App = {
   extends: [Application],
 
-  observe ({context}) {
-    return <Applications config={context.config.applications} />
+  observe ({config}) {
+    return <Applications config={config.applications} />
   },
 
   describe({data}) {
