@@ -1,0 +1,1 @@
+exports.extensions = require('./lib/extensions').default

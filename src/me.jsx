@@ -2,9 +2,7 @@
 
 import _ from 'lodash'
 import { createElement } from 'elliptical'
-import { Day } from 'elliptical-datetime'
-import { EmailAddress } from 'elliptical-email'
-import { PhoneNumber } from 'elliptical-phone'
+import { Day, EmailAddress, PhoneNumber } from 'lacona-phrases'
 import { dateMap } from './constant-maps'
 import { UserContact, spreadObject } from './contact-sources'
 

@@ -1,0 +1,83 @@
+{
+  "_general": {
+    "type": "object",
+    "title": "General Settings",
+    "properties": {
+      "keyboardShortcut": {
+        "type": "key",
+        "default": {
+          "key": 49,
+          "string": " ",
+          "display": "Space",
+          "cmd": false,
+          "ctrl": false,
+          "alt": true,
+          "shift": false
+        }
+      },
+      "launchAtLogin": {
+        "type": "boolean",
+        "default": true
+      },
+      "showMenuBarIcon": {
+        "description": "If the Menu Bar Icon is hidden, you can still access these preferences by pressing ⌘,",
+        "type": "boolean",
+        "default": true
+      },
+      "theme": {
+        "type": "object",
+        "properties": {
+          "color": {
+            "type": "string",
+            "enum": [
+              "System",
+              "Dark",
+              "Light"
+            ],
+            "default": "System"
+          },
+          "minimal": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    }
+  },
+  "applications": {
+    "type": "object",
+    "properties": {
+      "searchDirectories": {
+        "type": "array",
+        "description": "Lacona will look for Applications in these directories",
+        "format": "table",
+        "items": {
+          "type": "string",
+          "title": "Directory",
+          "default": ""
+        },
+        "default": [
+          "/Applications",
+          "/Applications/Xcode.app/Contents/Applications",
+          "/System/Library/CoreServices/Applications",
+          "~/Applications",
+          "/usr/local/Cellar",
+          "/opt/homebrew-cask/Caskroom"
+        ]
+      },
+      "applications": {
+        "type": "array",
+        "description": "These Applications will be available even if they are not in the Search Directories",
+        "format": "table",
+        "items": {
+          "type": "string",
+          "title": "Application Name",
+          "default": ""
+        },
+        "default": [
+          "Finder"
+        ]
+      }
+    }
+  }
+}

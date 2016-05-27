@@ -3,11 +3,8 @@
 import _ from 'lodash'
 import { Contacts, possibleNameCombinations, spread } from './contact-sources'
 import { createElement } from 'elliptical'
-import { Day } from 'elliptical-datetime'
+import { Day, EmailAddress, PhoneNumber, ContactCard } from 'lacona-phrases'
 import { dateMap } from './constant-maps'
-import { EmailAddress } from 'elliptical-email'
-import { PhoneNumber } from 'elliptical-phone'
-import { ContactCard } from 'lacona-phrases'
 import { openURL } from 'lacona-api'
 import * as constantMaps from './constant-maps'
 

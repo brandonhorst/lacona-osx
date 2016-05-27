@@ -2,7 +2,7 @@
 
 import _ from 'lodash'
 import { createElement } from 'elliptical'
-import { Date as DatePhrase } from 'elliptical-datetime'
+import { Date as DatePhrase } from 'lacona-phrases'
 import { isDemo } from 'lacona-api'
 import { Observable } from 'rxjs/Observable'
 

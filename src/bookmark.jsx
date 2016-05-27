@@ -1,6 +1,6 @@
 /** @jsx createElement */
 import { createElement } from 'elliptical'
-import { URL } from 'elliptical-url'
+import { URL } from 'lacona-phrases'
 import { fetchBookmarks } from 'lacona-api'
 import { map } from 'rxjs/operator/map'
 

@@ -2,7 +2,7 @@
 
 import _ from 'lodash'
 import { createElement } from 'elliptical'
-import { Command } from 'lacona-command'
+import { Command } from 'lacona-phrases'
 import { shutdown, restart, logOut, sleep, lock, turnOffDisplay, turnOnScreensaver, emptyTrash } from 'lacona-api'
 
 function demoExecute (result) {
