@@ -1,6 +1,8 @@
 import _ from 'lodash'
-import { fetchContacts, fetchUserContact } from 'lacona-api'
+import {fetchContacts, fetchUserContact} from 'lacona-api'
 import {Observable} from 'rxjs/Observable'
+import {mergeMap} from 'rxjs/operator/mergeMap'
+import {startWith} from 'rxjs/operator/startWith'
 
 export function possibleNameCombinations ({firstName, middleName, lastName, nickname, company}) {
   const possibleNames = []
@@ -60,33 +62,34 @@ export function spread (data, spreadKey, dataKeys = [], valueKey = 'value', labe
   return spreadData
 }
 
-export const UserContact = { fetch () {
-    return new Observable((observer) => {
-      observer.next([])
-
-      fetchUserContact((err, contacts) => {
-        if (err) {
-          console.error(err)
-        } else {
-          observer.next(contacts)
-        }
+export const UserContact = {
+  fetch ({activate}) {
+    return activate::mergeMap(() => {
+      return new Observable((observer) => {
+        fetchUserContact((err, contacts) => {
+          if (err) {
+            console.error(err)
+          } else {
+            observer.next(contacts)
+          }
+        })
       })
-    })
+    })::startWith({})
   }
 }
 
 export const Contacts = {
-  fetch () {
-    return new Observable((observer) => {
-      observer.next([])
-
-      fetchContacts((err, contacts) => {
-        if (err) {
-          console.error(err)
-        } else {
-          observer.next(contacts)
-        }
+  fetch ({activate}) {
+    return activate::mergeMap(() => {
+      return new Observable((observer) => {
+        fetchContacts((err, contacts) => {
+          if (err) {
+            console.error(err)
+          } else {
+            observer.next(contacts)
+          }
+        })
       })
-    })
+    })::startWith([])
   }
 }
