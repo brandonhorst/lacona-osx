@@ -15,22 +15,39 @@ const RunningApps = {
           if (err) {
             console.error(err)
           } else {
-            const trueData = _.map(apps, app => new RunningAppObject(app))
+            const trueData = _.map(apps, app => {
+              if (app.activationPolicy === 'regular') {
+                return new DockAppObject(app)
+              } else {
+                return new MenuBarAppObject(app)
+              }
+            })
             observer.next(trueData)
           }
         })
       })
-    })
+    })::startWith([])
   }
 }
 
-class RunningAppObject {
+class MenuBarAppObject {
   constructor(item) {
     this.bundleId = item.bundleId
     this.name = item.name
     this.type = 'application'
   }
 
+  quit () {
+    quitApplication({bundleId: this.bundleId})
+  }
+}
+
+class DockAppObject {
+  constructor(item) {
+    this.bundleId = item.bundleId
+    this.name = item.name
+    this.type = 'application'
+  }
 
   activate () {
     activateApplication({bundleId: this.bundleId})

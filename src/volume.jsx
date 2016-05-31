@@ -1,51 +1,41 @@
 /** @jsx createElement */
 import _ from 'lodash'
-import { createElement } from 'elliptical'
-import { MountedVolume } from 'lacona-phrases'
-import { openFile, unmountVolume, fetchMountedVolumes } from 'lacona-api'
+import {createElement} from 'elliptical'
+import {MountedVolume} from 'lacona-phrases'
+import {openFile, unmountVolume, fetchMountedVolumes} from 'lacona-api'
 import {Observable} from 'rxjs/Observable'
+import {mergeMap} from 'rxjs/operator/mergeMap'
+import {startWith} from 'rxjs/operator/startWith'
 
 class VolumeObject {
   constructor ({name, path, canOpen, canEject}) {
     this.name = name
     this.path = path
-    this.canOpen = canOpen
-    this.canEject = canEject
     this.type = 'volume'
-  }
+    if (canOpen) {
+      this.open = () => openFile({path})
+    }
 
-  canOpen () {
-    return this.canOpen
-  }
-
-  open () {
-    openFile({path: this.path})
-  }
-
-  canEject () {
-    return this.canEject
-  }
-
-  eject () {
-    unmountVolume({id: this.name})
+    if (canEject) {
+      this.eject = () => unmountVolume({id: name})
+    }
   }
 }
 
 const Volumes = {
-  fetch () {
-    return new Observable((observer) => {
-      observer.next([])
-
-      fetchMountedVolumes((err, volumes) => {
-        if (err) {
-          observer.next([])
-          console.error(err)
-        } else {
-          const volumeObjects = _.map(volumes, volume => new VolumeObject(volume))
-          observer.next(volumeObjects)
-        }
+  fetch ({activate}) {
+    return activate::mergeMap(() => {
+      return new Observable((observer) => {
+        fetchMountedVolumes((err, volumes) => {
+          if (err) {
+            console.error(err)
+          } else {
+            const volumeObjects = _.map(volumes, volume => new VolumeObject(volume))
+            observer.next(volumeObjects)
+          }
+        })
       })
-    })
+    })::startWith([])
   }
 }
 
