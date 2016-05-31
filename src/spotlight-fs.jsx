@@ -1,9 +1,9 @@
 /** @jsx createElement */
 import _ from 'lodash'
-import { createElement } from 'elliptical'
-import { File as BaseFile } from 'lacona-phrases'
-import { searchFiles } from 'lacona-api'
-import { dirname, basename } from 'path'
+import {createElement} from 'elliptical'
+import {File, Directory} from 'lacona-phrases'
+import {searchFiles} from 'lacona-api'
+import {basename} from 'path'
 
 const Files = {
   fetch ({props}) {
@@ -34,18 +34,24 @@ function describeFolders ({data}) {
   return <list items={items} />
 }
 
-export const File = {
-  extends: [BaseFile],
+export const SpotlightFile = {
+  extends: [File],
   describe () {
     return (
-      <choice>
-        <label text='folder'>
-          <dynamic observe={observe} describe={describeFolders} greedy />
-        </label>
-        <label text='file'>
-          <dynamic observe={observe} describe={describeFiles} greedy />
-        </label>
-      </choice>
+      <label text='file'>
+        <dynamic observe={observe} describe={describeFiles} greedy />
+      </label>
+    )
+  }
+}
+
+export const SpotlightDirectory = {
+  extends: [Directory],
+  describe () {
+    return (
+      <label text='folder'>
+        <dynamic observe={observe} describe={describeFolders} greedy />
+      </label>
     )
   }
 }

@@ -31,9 +31,9 @@ const RunningApps = {
 }
 
 class MenuBarAppObject {
-  constructor(item) {
-    this.bundleId = item.bundleId
-    this.name = item.name
+  constructor({bundleId, name}) {
+    this.bundleId = bundleId
+    this.name = name
     this.type = 'application'
   }
 
@@ -43,9 +43,9 @@ class MenuBarAppObject {
 }
 
 class DockAppObject {
-  constructor(item) {
-    this.bundleId = item.bundleId
-    this.name = item.name
+  constructor({bundleId, name}) {
+    this.bundleId = bundleId
+    this.name = name
     this.type = 'application'
   }
 
