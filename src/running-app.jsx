@@ -1,22 +1,24 @@
 /** @jsx createElement */
 import _ from 'lodash'
-import { createElement } from 'elliptical'
-import { RunningApplication } from 'lacona-phrases'
-import { fetchRunningApplications, activateApplication, hideApplication, closeApplicationWindows, quitApplication } from 'lacona-api'
+import {createElement} from 'elliptical'
+import {RunningApplication} from 'lacona-phrases'
+import {fetchRunningApplications, activateApplication, hideApplication, closeApplicationWindows, quitApplication} from 'lacona-api'
 import {Observable} from 'rxjs/Observable'
+import {mergeMap} from 'rxjs/operator/mergeMap'
+import {startWith} from 'rxjs/operator/startWith'
 
 const RunningApps = {
-  fetch () {
-    return new Observable((observer) => {
-      observer.next([])
-
-      fetchRunningApplications((err, apps) => {
-        if (err) {
-          console.error(err)
-        } else {
-          const trueData = _.map(apps, app => new RunningAppObject(app))
-          observer.next(trueData)
-        }
+  fetch ({activate}) {
+    return activate::mergeMap(() => {
+      return new Observable((observer) => {
+        fetchRunningApplications((err, apps) => {
+          if (err) {
+            console.error(err)
+          } else {
+            const trueData = _.map(apps, app => new RunningAppObject(app))
+            observer.next(trueData)
+          }
+        })
       })
     })
   }
