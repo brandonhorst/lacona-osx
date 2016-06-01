@@ -23,7 +23,7 @@ function describeFiles ({data}) {
     .filter(({contentType}) => contentType !== 'public.folder')
     .map(({path}) => ({text: basename(path), value: path}))
     .value()
-  return <list items={items} />
+  return <list strategy='contain' items={items} />
 }
 
 function describeFolders ({data}) {
@@ -31,7 +31,7 @@ function describeFolders ({data}) {
     .filter(({contentType}) => contentType === 'public.folder')
     .map(({path}) => ({text: basename(path), value: path}))
     .value()
-  return <list items={items} />
+  return <list strategy='contain' items={items} />
 }
 
 export const SpotlightFile = {

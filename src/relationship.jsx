@@ -28,8 +28,8 @@ function describeRelationship (data) {
       const relationships = relationshipMap[relationship] || [relationship]
       return (
         <choice limit={1} value={value}>
-          {_.map(relationships, oneRelationship => <literal text={`my ${oneRelationship.toLowerCase()}`} />)}
-          {_.map(relationships, oneRelationship => <literal text={`${_.capitalize(oneRelationship)}`} />)}
+          {_.map(relationships, oneRelationship => <literal strategy='fuzzy' text={`my ${oneRelationship.toLowerCase()}`} />)}
+          {_.map(relationships, oneRelationship => <literal strategy='fuzzy' text={`${_.capitalize(oneRelationship)}`} />)}
         </choice>
       )
     })
@@ -90,11 +90,11 @@ export const RelationshipDate = {
                 _.map(relationships, oneRelationship => (
                   <sequence>
                     <label text='relationship'>
-                      <literal text={`my ${oneRelationship.toLowerCase()}'s`} />
+                      <literal strategy='fuzzy' text={`my ${oneRelationship.toLowerCase()}'s`} />
                     </label>
                     <literal text=' ' />
                     <label text='special day'>
-                      <literal text={dateName} />
+                      <literal strategy='fuzzy' text={dateName} />
                     </label>
                   </sequence>
                 )),

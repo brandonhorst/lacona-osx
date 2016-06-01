@@ -39,17 +39,6 @@ const Volumes = {
   }
 }
 
-  // TODO activate deactivate
-  // onActivate () {
-  //   global.mountedVolumes((err, volumes) => {
-  //     if (volumes) this.replaceData(volumes)
-  //   })
-  // }
-  //
-  // onDeactivate () {
-  //   this.replaceData([])
-  // }
-
 export const Volume = {
   extends: [MountedVolume],
 
@@ -57,14 +46,14 @@ export const Volume = {
     return <Volumes />
   },
 
-  describe ({data}) {
+  describe ({data, props}) {
     const volumes = _.chain(data)
       .map(obj => ({text: obj.name, value: obj}))
       .value()
 
     return (
-      <label text='volume'>
-        <list fuzzy items={volumes} />
+      <label text='volume' suppressEmpty={props.suppressEmpty}>
+        <list strategy='fuzzy' items={volumes} />
       </label>
     )
   }

@@ -27,7 +27,7 @@ export const Bookmark = {
 
     return (
       <label text='bookmark'>
-        <list fuzzy items={bookmarks} limit={10} />
+        <list strategy='fuzzy' items={bookmarks} limit={10} />
       </label>
     )
   }

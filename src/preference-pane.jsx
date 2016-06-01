@@ -38,7 +38,7 @@ export const Pane = {
 
     return (
       <label text='preference pane'>
-        <list fuzzy items={panes} limit={10} score={1} />
+        <list strategy='fuzzy' items={panes} limit={10} score={1} />
       </label>
     )
   }

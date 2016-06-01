@@ -2,7 +2,7 @@
 import _ from 'lodash'
 import {createElement} from 'elliptical'
 import {RunningApplication} from 'lacona-phrases'
-import {fetchRunningApplications, activateApplication, hideApplication, closeApplicationWindows, quitApplication} from 'lacona-api'
+import {fetchRunningApplications, activateApplication, hideApplication, closeApplicationWindows, quitApplication, launchApplication} from 'lacona-api'
 import {Observable} from 'rxjs/Observable'
 import {mergeMap} from 'rxjs/operator/mergeMap'
 import {startWith} from 'rxjs/operator/startWith'
@@ -37,8 +37,12 @@ class MenuBarAppObject {
     this.type = 'application'
   }
 
-  quit () {
-    quitApplication({bundleId: this.bundleId})
+  quit (done) {
+    quitApplication({bundleId: this.bundleId}, done)
+  }
+
+  launch (done) {
+    launchApplication({bundleId: this.bundleId}, done)
   }
 }
 
@@ -49,20 +53,24 @@ class DockAppObject {
     this.type = 'application'
   }
 
-  activate () {
-    activateApplication({bundleId: this.bundleId})
+  activate (done) {
+    activateApplication({bundleId: this.bundleId}, done)
   }
 
-  hide () {
-    hideApplication({bundleId: this.bundleId})
+  launch (done) {
+    launchApplication({bundleId: this.bundleId}, done)
   }
 
-  close () {
-    closeApplicationWindows({bundleId: this.bundleId})
+  hide (done) {
+    hideApplication({bundleId: this.bundleId}, done)
   }
 
-  quit () {
-    quitApplication({bundleId: this.bundleId})
+  close (done) {
+    closeApplicationWindows({bundleId: this.bundleId}, done)
+  }
+
+  quit (done) {
+    quitApplication({bundleId: this.bundleId}, done)
   }
 }
 
@@ -72,12 +80,12 @@ export const RunningApp = {
     return <RunningApps />
   },
 
-  describe ({data}) {
+  describe ({data, props}) {
     const apps = _.map(data, app => ({text: app.name, value: app}))
 
     return (
-      <label text='application'>
-        <list fuzzy={true} items={apps} />
+      <label text='application' suppressEmpty={props.suppressEmpty}>
+        <list strategy='fuzzy' items={apps} />
       </label>
     )
   }

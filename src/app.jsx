@@ -51,14 +51,14 @@ export const App = {
     return <Applications config={config.applications} />
   },
 
-  describe({data}) {
+  describe({data, props}) {
     const apps = _.map(data, app => ({
       text: app.name,
       value: app
     }))
 
     return (
-      <label text='application'>
+      <label text='application' suppressEmpty={props.suppressEmpty}>
         <list strategy='fuzzy' items={apps} limit={10} />
       </label>
     )

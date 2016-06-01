@@ -14,7 +14,7 @@ function spreadElementsFromContacts (data, map) {
     const qualifiers = [map[label] ? map[label][0] : label]
     const items = _.map(possibleNames, text => ({text, value, qualifiers}))
 
-    return <list items={items} limit={1} />
+    return <list strategy='fuzzy' items={items} limit={1} />
   })
 
   return (
@@ -45,7 +45,7 @@ function contactElementsFromContacts (data) {
     const value = new ContactObject({id, name: possibleNames[0]})
     const items = _.map(possibleNames, text => ({text, value}))
 
-    return <list items={items} limit={1} />
+    return <list strategy='fuzzy' items={items} limit={1} />
   })
 
   return (
@@ -124,11 +124,11 @@ export const ContactDate = {
               return _.map(possibleNames, possibleName => (
                 <sequence>
                   <label text='contact'>
-                    <literal text={`${possibleName}'s`} />
+                    <literal strategy='fuzzy' text={`${possibleName}'s`} />
                   </label>
                   <literal text=' ' />
                   <label text='special day' suppressEmpty={false}>
-                    <literal text={dateName} />
+                    <literal strategy='fuzzy' text={dateName} />
                   </label>
                 </sequence>
               ))

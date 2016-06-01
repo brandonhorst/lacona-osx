@@ -30,7 +30,7 @@ export const Holiday = {
 
     return (
       <label text='holiday'>
-        <list items={data} limit={10} />
+        <list strategy='fuzzy' items={data} limit={10} />
       </label>
     )
   }

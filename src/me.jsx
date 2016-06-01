@@ -27,7 +27,7 @@ export const PersonalDate = {
       <sequence>
         {props.prepositions ? <literal text='on ' optional preferred limited category='conjunction' /> : null}
         <label text='special day' merge>
-          <list items={items} />
+          <list strategy='fuzzy' items={items} />
         </label>
       </sequence>
     )
