@@ -2,31 +2,46 @@
 import _ from 'lodash'
 import {createElement} from 'elliptical'
 import {RunningApplication} from 'lacona-phrases'
-import {fetchRunningApplications, activateApplication, hideApplication, closeApplicationWindows, quitApplication, launchApplication} from 'lacona-api'
+import {isDemo, fetchRunningApplications, activateApplication, hideApplication, closeApplicationWindows, quitApplication, launchApplication} from 'lacona-api'
 import {Observable} from 'rxjs/Observable'
 import {mergeMap} from 'rxjs/operator/mergeMap'
 import {startWith} from 'rxjs/operator/startWith'
 
 const RunningApps = {
   fetch ({activate}) {
-    return activate::mergeMap(() => {
+    if (isDemo()) {
       return new Observable((observer) => {
         fetchRunningApplications((err, apps) => {
-          if (err) {
-            console.error(err)
-          } else {
-            const trueData = _.map(apps, app => {
-              if (app.activationPolicy === 'regular') {
-                return new DockAppObject(app)
-              } else {
-                return new MenuBarAppObject(app)
-              }
-            })
-            observer.next(trueData)
-          }
+          const trueData = _.map(apps, app => {
+            if (app.activationPolicy === 'regular') {
+              return new DockAppObject(app)
+            } else {
+              return new MenuBarAppObject(app)
+            }
+          })
+          observer.next(trueData)
         })
       })
-    })::startWith([])
+    } else {
+      return activate::mergeMap(() => {
+        return new Observable((observer) => {
+          fetchRunningApplications((err, apps) => {
+            if (err) {
+              console.error(err)
+            } else {
+              const trueData = _.map(apps, app => {
+                if (app.activationPolicy === 'regular') {
+                  return new DockAppObject(app)
+                } else {
+                  return new MenuBarAppObject(app)
+                }
+              })
+              observer.next(trueData)
+            }
+          })
+        })
+      })::startWith([])
+    }
   }
 }
 

@@ -2,7 +2,7 @@
 import _ from 'lodash'
 import {createElement} from 'elliptical'
 import {MountedVolume} from 'lacona-phrases'
-import {openFile, unmountVolume, fetchMountedVolumes} from 'lacona-api'
+import {isDemo, openFile, unmountVolume, fetchMountedVolumes} from 'lacona-api'
 import {Observable} from 'rxjs/Observable'
 import {mergeMap} from 'rxjs/operator/mergeMap'
 import {startWith} from 'rxjs/operator/startWith'
@@ -24,18 +24,27 @@ class VolumeObject {
 
 const Volumes = {
   fetch ({activate}) {
-    return activate::mergeMap(() => {
+    if (isDemo()) {
       return new Observable((observer) => {
         fetchMountedVolumes((err, volumes) => {
-          if (err) {
-            console.error(err)
-          } else {
-            const volumeObjects = _.map(volumes, volume => new VolumeObject(volume))
-            observer.next(volumeObjects)
-          }
+          const volumeObjects = _.map(volumes, volume => new VolumeObject(volume))
+          observer.next(volumeObjects)
         })
       })
-    })::startWith([])
+    } else {
+      return activate::mergeMap(() => {
+        return new Observable((observer) => {
+          fetchMountedVolumes((err, volumes) => {
+            if (err) {
+              console.error(err)
+            } else {
+              const volumeObjects = _.map(volumes, volume => new VolumeObject(volume))
+              observer.next(volumeObjects)
+            }
+          })
+        })
+      })::startWith([])
+    }
   }
 }
 
