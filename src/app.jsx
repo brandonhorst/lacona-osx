@@ -3,7 +3,8 @@ import _ from 'lodash'
 import { Application } from 'lacona-phrases'
 import { createElement } from 'elliptical'
 import { map } from 'rxjs/operator/map'
-import { bundleIdForApplication, fetchApplications, launchApplication, openURLInApplication, openFileInApplication, Config } from 'lacona-api'
+import { mergeMap } from 'rxjs/operator/mergeMap'
+import { fetchApplication, watchApplications, launchApplication, openURLInApplication, openFileInApplication } from 'lacona-api'
 
 class AppObject {
   constructor({bundleId, name}) {
@@ -25,19 +26,32 @@ class AppObject {
   }
 }
 
-function getSpecificApps (applications) {
-  return _.chain(applications)
-    .map(name => ({bundleId: bundleIdForApplication({name}), name}))
-    .filter(item => item.bundleId != null)
-    .value()
+async function getSpecificApps (applications) {
+  const infoPromises = _.map(applications, name => fetchApplication({name}))
+  const info = await Promise.all(infoPromises)
+  return _.filter(info)
 }
 
 const Applications = {
   fetch ({props}) {
-    return fetchApplications({
+    return watchApplications({
       directories: props.config.searchDirectories
-    })::map((data) => {
-      return data.concat(getSpecificApps(props.config.applications))
+    })::map(data => {
+      // Add in the alternativeNames, but remove .app and case-insensitive uniquify
+      const newData = _.flatMap(data, item => {
+        const allNames = _.chain([item.name])
+        .concat(item.alternativeNames || [])
+        .map(name => _.endsWith(_.toLower(name), '.app') ? name.slice(0, -4) : name)
+        .uniqBy(_.toLower)
+        .value()
+
+        return _.map(allNames, name => ({bundleId: item.bundleId, name}))
+      })
+
+      return newData
+    })::mergeMap(async data => {
+      const specificApps = await getSpecificApps(props.config.applications)
+      return data.concat(specificApps)
     })::map((data) => {
       return _.map(data, (item) => new AppObject(item))
     })

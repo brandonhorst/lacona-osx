@@ -1,7 +1,7 @@
 /** @jsx createElement */
 import { createElement } from 'elliptical'
 import { URL } from 'lacona-phrases'
-import { fetchBookmarks } from 'lacona-api'
+import { watchBookmarks } from 'lacona-api'
 import { map } from 'rxjs/operator/map'
 
 /* for when I want to support Chrome
@@ -12,7 +12,7 @@ end tell
 
 const Bookmarks = {
   fetch () {
-    return fetchBookmarks()
+    return watchBookmarks()
   }
 }
 

@@ -4,8 +4,10 @@ import {createElement} from 'elliptical'
 import {MountedVolume} from 'lacona-phrases'
 import {isDemo, openFile, unmountVolume, fetchMountedVolumes} from 'lacona-api'
 import {Observable} from 'rxjs/Observable'
+import {map} from 'rxjs/operator/map'
 import {mergeMap} from 'rxjs/operator/mergeMap'
 import {startWith} from 'rxjs/operator/startWith'
+import {fromPromise} from 'rxjs/observable/fromPromise'
 
 class VolumeObject {
   constructor ({name, path, canOpen, canEject}) {
@@ -33,16 +35,9 @@ const Volumes = {
       })
     } else {
       return activate::mergeMap(() => {
-        return new Observable((observer) => {
-          fetchMountedVolumes((err, volumes) => {
-            if (err) {
-              console.error(err)
-            } else {
-              const volumeObjects = _.map(volumes, volume => new VolumeObject(volume))
-              observer.next(volumeObjects)
-            }
-          })
-        })
+        return fromPromise(fetchMountedVolumes())
+      })::map((volumes) => {
+        return _.map(volumes, volume => new VolumeObject(volume))
       })::startWith([])
     }
   }

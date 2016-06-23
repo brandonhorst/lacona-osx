@@ -27,4 +27,6 @@ build/Release
 node_modules
 
 lib
-build
+lib-browser
+lib-es
+lib-node

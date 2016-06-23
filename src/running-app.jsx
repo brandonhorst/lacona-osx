@@ -4,8 +4,10 @@ import {createElement} from 'elliptical'
 import {RunningApplication} from 'lacona-phrases'
 import {isDemo, fetchRunningApplications, activateApplication, hideApplication, closeApplicationWindows, quitApplication, launchApplication} from 'lacona-api'
 import {Observable} from 'rxjs/Observable'
+import {map} from 'rxjs/operator/map'
 import {mergeMap} from 'rxjs/operator/mergeMap'
 import {startWith} from 'rxjs/operator/startWith'
+import {fromPromise} from 'rxjs/observable/fromPromise'
 
 const RunningApps = {
   fetch ({activate}) {
@@ -24,21 +26,14 @@ const RunningApps = {
       })
     } else {
       return activate::mergeMap(() => {
-        return new Observable((observer) => {
-          fetchRunningApplications((err, apps) => {
-            if (err) {
-              console.error(err)
-            } else {
-              const trueData = _.map(apps, app => {
-                if (app.activationPolicy === 'regular') {
-                  return new DockAppObject(app)
-                } else {
-                  return new MenuBarAppObject(app)
-                }
-              })
-              observer.next(trueData)
-            }
-          })
+        return fromPromise(fetchRunningApplications())
+      })::map((apps) => {
+        const trueData = _.map(apps, app => {
+          if (app.activationPolicy === 'regular') {
+            return new DockAppObject(app)
+          } else {
+            return new MenuBarAppObject(app)
+          }
         })
       })::startWith([])
     }

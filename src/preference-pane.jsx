@@ -2,7 +2,7 @@
 import _ from 'lodash'
 import { PreferencePane } from 'lacona-phrases'
 import { createElement } from 'elliptical'
-import { fetchPreferencePanes, openFile } from 'lacona-api'
+import { watchPreferencePanes, openFile } from 'lacona-api'
 import { map } from 'rxjs/operator/map'
 
 class PaneObject {
@@ -20,7 +20,7 @@ class PaneObject {
 
 const Panes = {
   fetch () {
-    return fetchPreferencePanes()::map((data) => {
+    return watchPreferencePanes()::map((data) => {
       return _.map(data, (item) => new PaneObject(item))
     })
   }

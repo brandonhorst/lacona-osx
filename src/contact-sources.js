@@ -3,6 +3,7 @@ import {isDemo, fetchContacts, fetchUserContact} from 'lacona-api'
 import {Observable} from 'rxjs/Observable'
 import {mergeMap} from 'rxjs/operator/mergeMap'
 import {startWith} from 'rxjs/operator/startWith'
+import {fromPromise} from 'rxjs/observable/fromPromise'
 
 export function possibleNameCombinations ({firstName, middleName, lastName, nickname, company}) {
   const possibleNames = []
@@ -66,21 +67,13 @@ export const UserContact = {
   fetch ({activate}) {
     if (isDemo()) {
       return new Observable((observer) => {
-        fetchUserContact((err, contacts) => {
+        fetchUserContact.then(contacts => {
           observer.next(contacts)
         })
       })
     } else {
       return activate::mergeMap(() => {
-        return new Observable((observer) => {
-          fetchUserContact((err, contacts) => {
-            if (err) {
-              console.error(err)
-            } else {
-              observer.next(contacts)
-            }
-          })
-        })
+        return fromPromise(fetchUserContact())
       })::startWith({})
     }
   }
@@ -90,21 +83,13 @@ export const Contacts = {
   fetch ({activate}) {
     if (isDemo()) {
       return new Observable((observer) => {
-        fetchContacts((err, contacts) => {
+        return fetchContacts().then(contacts => {
           observer.next(contacts)
         })
       })
     } else {
       return activate::mergeMap(() => {
-        return new Observable((observer) => {
-          fetchContacts((err, contacts) => {
-            if (err) {
-              console.error(err)
-            } else {
-              observer.next(contacts)
-            }
-          })
-        })
+        return fromPromise(fetchContacts())
       })::startWith([])
     }
   }
