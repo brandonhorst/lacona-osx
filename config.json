@@ -1,0 +1,40 @@
+{
+  "applications": {
+    "type": "object",
+    "properties": {
+      "searchDirectories": {
+        "type": "array",
+        "description": "Lacona will look for Applications in these directories",
+        "format": "table",
+        "items": {
+          "type": "string",
+          "title": "Directory",
+          "default": ""
+        },
+        "emptyMessage": "No Directories",
+        "default": [
+          "/Applications",
+          "/Applications/Xcode.app/Contents/Applications",
+          "/System/Library/CoreServices/Applications",
+          "~/Applications",
+          "/usr/local/Cellar",
+          "/opt/homebrew-cask/Caskroom"
+        ]
+      },
+      "applications": {
+        "type": "array",
+        "description": "These Applications will be available even if they are not in the Search Directories",
+        "format": "table",
+        "emptyMessage": "No Applications",
+        "items": {
+          "type": "string",
+          "title": "Application Name",
+          "default": ""
+        },
+        "default": [
+          "Finder"
+        ]
+      }
+    }
+  }
+}
