@@ -18,17 +18,19 @@ const Bookmarks = {
 
 export const Bookmark = {
   extends: [URL],
-  observe () {
-    return <Bookmarks />
-  },
 
-  describe ({data}) {
-    const bookmarks = data.map(bookmark => ({text: bookmark.name, value: bookmark.url}))
+  describe ({observe}) {
+    const data = observe(<Bookmarks />)
+    const bookmarks = data.map(bookmark => ({
+      text: bookmark.name,
+      value: bookmark.url,
+      annotation: {type: 'icon', path: bookmark.path}
+    }))
 
     return (
-      <label text='bookmark'>
+      <placeholder argument='bookmark'>
         <list strategy='fuzzy' items={bookmarks} limit={10} />
-      </label>
+      </placeholder>
     )
   }
 }

@@ -13,11 +13,8 @@ function spreadDates (obj) {
 export const PersonalDate = {
   extends: [Day],
 
-  observe () {
-    return <UserContact />
-  },
-
-  describe ({data, props}) {
+  describe ({observe, props}) {
+    const data = observe(<UserContact />)
     const dates = spreadDates(data)
     const items = _.map(dates, ({value, label}) => {
       return {value, text: `my ${dateMap[label] || label}`}
@@ -26,9 +23,9 @@ export const PersonalDate = {
     return (
       <sequence>
         {props.prepositions ? <literal text='on ' optional preferred limited category='conjunction' /> : null}
-        <label text='special day' merge>
+        <placeholder argument='special day' merge>
           <list strategy='fuzzy' items={items} />
-        </label>
+        </placeholder>
       </sequence>
     )
   }

@@ -46,19 +46,16 @@ const Volumes = {
 export const Volume = {
   extends: [MountedVolume],
 
-  observe () {
-    return <Volumes />
-  },
-
-  describe ({data, props}) {
+  describe ({observe, props}) {
+    const data = observe(<Volumes />)
     const volumes = _.chain(data)
       .map(obj => ({text: obj.name, value: obj}))
       .value()
 
     return (
-      <label text='volume' suppressEmpty={props.suppressEmpty}>
+      <placeholder argument='volume' suppressEmpty={props.suppressEmpty}>
         <list strategy='fuzzy' items={volumes} />
-      </label>
+      </placeholder>
     )
   }
 }

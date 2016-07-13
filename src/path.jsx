@@ -4,6 +4,7 @@ import { createElement } from 'elliptical'
 import { File, Directory } from 'lacona-phrases'
 import { dirname, join } from 'path'
 import { Observable } from 'rxjs/Observable'
+import { userHome } from 'lacona-api'
 import { readdir, stat } from 'fs'
 
 function fetchPath (dir, file) {
@@ -39,15 +40,20 @@ const DirectorySource = {
     return new Observable(async observer => {
       observer.next([])
 
-      const files = await fetchDirectoryContents(props.path)
+      const expandedPath = props.path.replace(/^~/, userHome())
+      const files = await fetchDirectoryContents(expandedPath)
       const absDirs = _.chain(files)
         .filter('isDir')
-        .map(({file}) => join(props.path, file) + '/')
+        .map(({file}) => ({
+          text: join(props.path, file) + '/',
+          value: join(expandedPath, file) + '/'
+        }))
         .value()
 
-      observer.next([props.path].concat(absDirs))
+      observer.next([{text: props.path, value: expandedPath}].concat(absDirs))
     })
-  }
+  },
+  clear: true
 }
 
 const FileSource = {
@@ -55,39 +61,54 @@ const FileSource = {
     return new Observable(async observer => {
       observer.next([])
 
-      const files = await fetchDirectoryContents(props.path)
+      const expandedPath = props.path.replace(/^~/, userHome())
+      const files = await fetchDirectoryContents(expandedPath)
       const absFiles = _.chain(files)
         .filter(file => !file.isDir)
-        .map(({file}) => join(props.path, file))
+        .map(({file}) => ({
+          text: join(props.path, file),
+          value: join(expandedPath, file)
+        }))
         .value()
       observer.next(absFiles)
     })
-  }
+  },
+  clear: true
 }
 
-function observeFiles (input) {
+// function observeFiles (input) {
+//   const path = _.endsWith(input, '/') ? input : dirname(input)
+//   return <FileSource path={path} />
+// }
+
+// function observeDirectories (input) {
+//   const path = _.endsWith(input, '/') ? input : dirname(input)
+//   return <DirectorySource path={path} />
+// }
+
+function describeFile (input, observe, Source) {
   const path = _.endsWith(input, '/') ? input : dirname(input)
-  return <FileSource path={path} />
-}
-
-function observeDirectories (input) {
-  const path = _.endsWith(input, '/') ? input : dirname(input)
-  return <DirectorySource path={path} />
-}
-
-function describeFile ({data}) {
-  const items = _.map(data, (file) => ({text: file, value: file}))
+  const data = observe(<Source path={path} />)
+  const items = _.map(data, ({text, value}) => ({
+    text,
+    value,
+    annotation: {type: 'icon', path: value}
+  }))
   return <list items={items} />
 }
 
 export const FilePath = {
   extends: [File],
   
-  describe ({props}) {
+  describe ({props, observe}) {
     return (
-      <label text='path'>
-        <dynamic observe={observeFiles} describe={describeFile} greedy splitOn={props.splitOn} limit={1} />
-      </label>
+      <placeholder argument='path'>
+        <dynamic
+          describe={input => describeFile(input, observe, FileSource)}
+          greedy
+          splitOn={props.splitOn}
+          limit={1} />
+      </placeholder>
     )
   }
 }
@@ -95,11 +116,15 @@ export const FilePath = {
 export const DirectoryPath = {
   extends: [Directory],
   
-  describe ({props}) {
+  describe ({props, observe}) {
     return (
-      <label text='path'>
-        <dynamic observe={observeDirectories} describe={describeFile} greedy splitOn={props.splitOn} limit={1} />
-      </label>
+      <placeholder argument='path'>
+        <dynamic
+          describe={input => describeFile(input, observe, DirectorySource)}
+          greedy
+          splitOn={props.splitOn}
+          limit={1} />
+      </placeholder>
     )
   }
 }

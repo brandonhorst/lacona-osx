@@ -9,20 +9,25 @@ import { openURL } from 'lacona-api'
 import * as constantMaps from './constant-maps'
 
 function spreadElementsFromContacts (data, map) {
-  const elements = _.map(data, ({firstName, middleName, lastName, nickname, company, value, label}) => {
+  const elements = _.map(data, ({firstName, middleName, lastName, nickname, company, value, label, id}) => {
     const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname, company})
     const qualifiers = [map[label] ? map[label][0] : label]
-    const items = _.map(possibleNames, text => ({text, value, qualifiers}))
+    const items = _.map(possibleNames, text => ({
+      text,
+      value,
+      qualifiers,
+      annotation: {type: 'contact', id}
+    }))
 
     return <list strategy='fuzzy' items={items} limit={1} />
   })
 
   return (
-    <label text='contact'>
+    <placeholder argument='contact'>
       <choice limit={10}>
         {elements}
       </choice>
-    </label>
+    </placeholder>
   )
 }
 
@@ -43,50 +48,50 @@ function contactElementsFromContacts (data) {
   const elements = _.map(data, ({firstName, middleName, lastName, nickname, company, id}) => {
     const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname, company})
     const value = new ContactObject({id, name: possibleNames[0]})
-    const items = _.map(possibleNames, text => ({text, value}))
+    const items = _.map(possibleNames, text => ({
+      text,
+      value,
+      annotation: {type: 'contact', id}
+    }))
 
     return <list strategy='fuzzy' items={items} limit={1} />
   })
 
   return (
-    <label text='contact'>
+    <placeholder argument='contact'>
       <choice limit={10}>
         {elements}
       </choice>
-    </label>
+    </placeholder>
   )
 }
 
 function spreadEmails (ary) {
-  return spread(ary, 'emails', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])
+  return spread(ary, 'emails', ['firstName', 'lastName', 'middleName', 'nickname', 'company', 'id'])
 }
 
 function spreadPhoneNumbers (ary) {
-  return spread(ary, 'phoneNumbers', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])
+  return spread(ary, 'phoneNumbers', ['firstName', 'lastName', 'middleName', 'nickname', 'company', 'id'])
 }
 
 function spreadDates (ary) {
-  return spread(ary, 'dates', ['firstName', 'lastName', 'middleName', 'nickname', 'company'])
+  return spread(ary, 'dates', ['firstName', 'lastName', 'middleName', 'nickname', 'company', 'id'])
 }
 
 export const Contact = {
   extends: [ContactCard],
-  observe () {
-    return <Contacts />
-  },
 
-  describe ({data}) {
+  describe ({observe}) {
+    const data = observe(<Contacts />)
     return contactElementsFromContacts(data)
   }
 }
 
 export const ContactEmail = {
   extends: [EmailAddress],
-  observe () {
-    return <Contacts />
-  },
-
-  describe ({data}) {
+  
+  describe ({observe}) {
+    const data = observe(<Contacts />)
     const emails = spreadEmails(data)
     return spreadElementsFromContacts(emails, constantMaps.emailLabelMap)
   }
@@ -94,12 +99,9 @@ export const ContactEmail = {
 
 export const ContactPhoneNumber = {
   extends: [PhoneNumber],
-
-  observe () {
-    return <Contacts />
-  },
   
-  describe ({data}) {
+  describe ({observe}) {
+    const data = observe(<Contacts />)
     const phoneNumbers = spreadPhoneNumbers(data)
     return spreadElementsFromContacts(phoneNumbers, constantMaps.phoneNumberMap)
   }
@@ -108,14 +110,11 @@ export const ContactPhoneNumber = {
 export const ContactDate = {
   extends: [Day],
 
-  observe () {
-    return <Contacts />
-  },
-
-  describe ({data, props}) {
+  describe ({observe, props}) {
+    const data = observe(<Contacts />)
     const dates = spreadDates(data)
     const items = _.chain(dates)
-      .map(({firstName, middleName, lastName, nickname, company, value, label}) => {
+      .map(({firstName, middleName, lastName, nickname, company, value, label, id}) => {
         const dateNames = dateMap[label] || [label]
         const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname})
         return (
@@ -123,13 +122,16 @@ export const ContactDate = {
             {_.map(dateNames, dateName => {
               return _.map(possibleNames, possibleName => (
                 <sequence>
-                  <label text='contact'>
-                    <literal strategy='fuzzy' text={`${possibleName}'s`} />
-                  </label>
+                  <placeholder argument='contact'>
+                    <literal
+                      strategy='fuzzy'
+                      text={`${possibleName}'s`}
+                      annotation={{type: 'contact', id}} />
+                  </placeholder>
                   <literal text=' ' />
-                  <label text='special day' suppressEmpty={false}>
+                  <placeholder argument='special day' suppressEmpty={false}>
                     <literal strategy='fuzzy' text={dateName} />
-                  </label>
+                  </placeholder>
                 </sequence>
               ))
             })}
@@ -141,11 +143,11 @@ export const ContactDate = {
     return (
       <sequence>
         {props.prepositions ? <literal text='on ' category='conjunction' optional limited preferred /> : null}
-        <label text='special day' merge>
+        <placeholder argument='special day' merge>
           <choice limit={10}>
             {items}
           </choice>
-        </label>
+        </placeholder>
       </sequence>
     )
   }

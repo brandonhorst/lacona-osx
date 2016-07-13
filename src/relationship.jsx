@@ -3,110 +3,120 @@
 import _ from 'lodash'
 import { createElement } from 'elliptical'
 import { Day, EmailAddress, PhoneNumber } from 'lacona-phrases'
-import { dateMap, relationshipMap } from './constant-maps'
+import { dateMap, relationshipMap, phoneNumberMap, emailLabelMap } from './constant-maps'
 import { spread, spreadObject, UserContact } from './contact-sources'
 
 function spreadRelationships (obj) {
-  return spreadObject(obj, 'relationships', ['phoneNumbers', 'emails', 'dates'], null, 'relationship')
+  return spreadObject(obj, 'relationships', ['phoneNumbers', 'emails', 'dates', 'id', 'firstName', 'lastName', 'company'], null, 'relationship')
 }
 
 function spreadPhoneNumbers (ary) {
-  return spread(ary, 'phoneNumbers', ['relationship'])
+  return spread(ary, 'phoneNumbers', ['relationship', 'id', 'firstName', 'lastName', 'company'])
 }
 
 function spreadEmails (ary) {
-  return spread(ary, 'emails', ['relationship'])
+  return spread(ary, 'emails', ['relationship', 'id', 'firstName', 'lastName', 'company'])
 }
 
 function spreadDates (ary) {
-  return spread(ary, 'dates', ['relationship'])
+  return spread(ary, 'dates', ['relationship', 'id', 'firstName', 'lastName', 'company'])
 }
 
-function describeRelationship (data) {
+function getNameQualifiers ({firstName, lastName, company}) {
+  if (firstName && lastName) {
+    return [firstName, `${firstName} ${lastName}`]
+  } else if (firstName || lastName) {
+    return [firstName || lastName]
+  } else if (company) {
+    return [company]
+  }
+}
+
+function describeRelationship (data, map) {
   const items = _.chain(data)
-    .map(({relationship, value, label}) => {
+    .map(({relationship, value, label, id, firstName, lastName, company}) => {
       const relationships = relationshipMap[relationship] || [relationship]
+      const qualifiers = getNameQualifiers({firstName, lastName, company})
+      qualifiers.push([map[label] ? map[label][0] : label])
+      const annotation = {type: 'contact', id}
       return (
-        <choice limit={1} value={value}>
-          {_.map(relationships, oneRelationship => <literal strategy='fuzzy' text={`my ${oneRelationship.toLowerCase()}`} />)}
-          {_.map(relationships, oneRelationship => <literal strategy='fuzzy' text={`${_.capitalize(oneRelationship)}`} />)}
+        <choice limit={1} value={value} annotation={annotation} qualifiers={qualifiers}>
+          {_.map(relationships, oneRelationship => (
+            <literal strategy='fuzzy' text={`my ${oneRelationship.toLowerCase()}`} />
+          ))}
+          {_.map(relationships, oneRelationship => (
+            <literal strategy='fuzzy' text={`${_.capitalize(oneRelationship)}`} />
+          ))}
         </choice>
       )
     })
     .value()
 
   return (
-    <label text='relationship'>
+    <placeholder argument='relationship'>
       <choice>
         {items}
       </choice>
-    </label>
+    </placeholder>
   )
 }
 
 export const RelationshipPhoneNumber = {
   extends: [PhoneNumber],
 
-  observe () {
-    return <UserContact />
-  },
-
-  describe ({data}) {
+  describe ({observe}) {
+    const data = observe(<UserContact />)
     const phoneNumbers = spreadPhoneNumbers(spreadRelationships(data))
-    return describeRelationship(phoneNumbers)
+    return describeRelationship(phoneNumbers, phoneNumberMap)
   }
 }
 
 export const RelationshipEmail = {
   extends: [EmailAddress],
 
-  observe () {
-    return <UserContact />
-  },
-
-  describe ({data}) {
+  describe ({observe}) {
+    const data = observe(<UserContact />)
     const emails = spreadEmails(spreadRelationships(data))
-    return describeRelationship(emails)
+    return describeRelationship(emails, emailLabelMap)
   }
 }
 
 export const RelationshipDate = {
   extends: [Day],
 
-  observe () {
-    return <UserContact />
-  },
-
-  describe ({data, props}) {
+  describe ({observe, props}) {
+    const data = observe(<UserContact />)
     const dates = spreadDates(spreadRelationships(data))
     const items = _.chain(dates)
-      .map(({relationship, value, label}) => {
+      .map(({relationship, value, label, id, firstName, lastName, company}) => {
         const relationships = relationshipMap[relationship] || [relationship]
         const dateNames = dateMap[label] || [label]
+        const annotation = {type: 'contact', id}
+        const qualifiers = getNameQualifiers({firstName, lastName, company})
         return (
-          <choice limit={1} value={value}>
+          <choice limit={1} value={value} annotation={annotation} qualifiers={qualifiers}>
             {_.map(dateNames, dateName => {
               return [
                 _.map(relationships, oneRelationship => (
                   <sequence>
-                    <label text='relationship'>
+                    <placeholder argument='relationship'>
                       <literal strategy='fuzzy' text={`my ${oneRelationship.toLowerCase()}'s`} />
-                    </label>
+                    </placeholder>
                     <literal text=' ' />
-                    <label text='special day'>
+                    <placeholder argument='special day'>
                       <literal strategy='fuzzy' text={dateName} />
-                    </label>
+                    </placeholder>
                   </sequence>
                 )),
                 _.map(relationships, oneRelationship => (
                   <sequence>
-                    <label text='relationship'>
+                    <placeholder argument='relationship'>
                       <literal text={`${_.capitalize(oneRelationship)}'s`} />
-                    </label>
+                    </placeholder>
                     <literal text=' ' />
-                    <label text='special day'>
+                    <placeholder argument='special day'>
                       <literal text={dateName} />
-                    </label>
+                    </placeholder>
                   </sequence>
                 ))
               ]
@@ -119,11 +129,11 @@ export const RelationshipDate = {
     return (
       <sequence>
         {props.prepositions ? <literal text='on ' category='conjunction' optional limited preferred /> : null}
-        <label text='special day' merge>
+        <placeholder argument='special day' merge>
           <choice>
             {items}
           </choice>
-        </label>
+        </placeholder>
       </sequence>
     )
   }

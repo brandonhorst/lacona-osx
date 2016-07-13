@@ -4,25 +4,25 @@ import { Application } from 'lacona-phrases'
 import { createElement } from 'elliptical'
 import { map } from 'rxjs/operator/map'
 import { mergeMap } from 'rxjs/operator/mergeMap'
-import { fetchApplication, watchApplications, launchApplication, openURLInApplication, openFileInApplication } from 'lacona-api'
+import { fetchApplication, watchApplications, openFile, openURLInApplication, openFileInApplication } from 'lacona-api'
 
 class AppObject {
-  constructor({bundleId, name}) {
-    this.bundleId = bundleId
+  constructor({name, path}) {
     this.name = name
     this.type = 'application'
+    this.path = path
   }
 
   open () {
-    launchApplication({bundleId: this.bundleId}, () => {})
+    openFile({path: this.path}, () => {})
   }
 
   openURL (url) {
-    openURLInApplication({url, bundleId: this.bundleId})
+    openURLInApplication({url, applicationPath: this.path})
   }
 
   openFile (path) {
-    openFileInApplication({path, bundleId: this.bundleId})
+    openFileInApplication({path, applicationPath: this.path})
   }
 }
 
@@ -45,7 +45,11 @@ const Applications = {
         .uniqBy(_.toLower)
         .value()
 
-        return _.map(allNames, name => ({bundleId: item.bundleId, name}))
+        return _.map(allNames, name => ({
+          bundleId: item.bundleId,
+          name,
+          path: item.path
+        }))
       })
 
       return newData
@@ -61,20 +65,18 @@ const Applications = {
 export const App = {
   extends: [Application],
 
-  observe ({config}) {
-    return <Applications config={config.applications} />
-  },
-
-  describe({data, props}) {
+  describe({observe, props, config}) {
+    const data = observe(<Applications config={config.applications} />)
     const apps = _.map(data, app => ({
       text: app.name,
-      value: app
+      value: app,
+      annotation: {type: 'icon', path: app.path}
     }))
 
     return (
-      <label text='application' suppressEmpty={props.suppressEmpty}>
+      <placeholder argument='application' suppressEmpty={props.suppressEmpty}>
         <list strategy='fuzzy' items={apps} limit={10} />
-      </label>
+      </placeholder>
     )
   }
 }

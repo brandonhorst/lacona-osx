@@ -29,17 +29,18 @@ const Panes = {
 export const Pane = {
   extends: [PreferencePane],
 
-  observe () {
-    return <Panes />
-  },
-
-  describe ({data}) {
-    const panes = _.map(data, pane => ({text: pane.name, value: pane}))
+  describe ({observe}) {
+    const data = observe(<Panes />)
+    const panes = _.map(data, pane => ({
+      text: pane.name,
+      value: pane,
+      annotation: {type: 'icon', path: pane.path}
+    }))
 
     return (
-      <label text='preference pane'>
+      <placeholder argument='preference pane'>
         <list strategy='fuzzy' items={panes} limit={10} score={1} />
-      </label>
+      </placeholder>
     )
   }
 }

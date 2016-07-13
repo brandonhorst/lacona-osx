@@ -20,18 +20,15 @@ const Holidays = {
 
 export const Holiday = {
   extends: [DatePhrase],
-  
-  observe () {
-    return <Holidays />
-  },
 
-  describe ({data}) {
+  describe ({observe}) {
+    const data = observe(<Holidays />)
     if (data.length === 0) return
 
     return (
-      <label text='holiday'>
+      <placeholder argument='holiday'>
         <list strategy='fuzzy' items={data} limit={10} />
-      </label>
+      </placeholder>
     )
   }
 }

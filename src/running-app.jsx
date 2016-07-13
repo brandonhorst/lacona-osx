@@ -2,7 +2,7 @@
 import _ from 'lodash'
 import {createElement} from 'elliptical'
 import {RunningApplication} from 'lacona-phrases'
-import {isDemo, fetchRunningApplications, activateApplication, hideApplication, closeApplicationWindows, quitApplication, launchApplication} from 'lacona-api'
+import {isDemo, fetchRunningApplications, activateApplication, hideApplication, closeApplicationWindows, quitApplication, openFile} from 'lacona-api'
 import {Observable} from 'rxjs/Observable'
 import {map} from 'rxjs/operator/map'
 import {mergeMap} from 'rxjs/operator/mergeMap'
@@ -28,7 +28,7 @@ const RunningApps = {
       return activate::mergeMap(() => {
         return fromPromise(fetchRunningApplications())
       })::map((apps) => {
-        const trueData = _.map(apps, app => {
+        return _.map(apps, app => {
           if (app.activationPolicy === 'regular') {
             return new DockAppObject(app)
           } else {
@@ -41,62 +41,62 @@ const RunningApps = {
 }
 
 class MenuBarAppObject {
-  constructor({bundleId, name}) {
-    this.bundleId = bundleId
+  constructor({bundleId, name, path}) {
+    this.path = path
     this.name = name
     this.type = 'application'
+    this.bundleId = bundleId
   }
 
-  quit (done) {
-    quitApplication({bundleId: this.bundleId}, done)
+  quit () {
+    return quitApplication({path: this.path})
   }
 
-  launch (done) {
-    launchApplication({bundleId: this.bundleId}, done)
+  launch () {
+    return openFile({path: this.path})
   }
 }
 
 class DockAppObject {
-  constructor({bundleId, name}) {
-    this.bundleId = bundleId
+  constructor({bundleId, name, path}) {
     this.name = name
     this.type = 'application'
+    this.path = path
+    this.bundleId = bundleId
   }
 
-  activate (done) {
-    activateApplication({bundleId: this.bundleId}, done)
+  activate () {
+    return activateApplication({path: this.path})
   }
 
-  launch (done) {
-    launchApplication({bundleId: this.bundleId}, done)
+  launch () {
+    return openFile({path: this.path})
   }
 
-  hide (done) {
-    hideApplication({bundleId: this.bundleId}, done)
+  hide () {
+    return hideApplication({path: this.path})
   }
 
-  close (done) {
-    closeApplicationWindows({bundleId: this.bundleId}, done)
+  close () {
+    return closeApplicationWindows({bundleId: this.bundleId})
   }
 
-  quit (done) {
-    quitApplication({bundleId: this.bundleId}, done)
+  quit () {
+    return quitApplication({path: this.path})
   }
 }
 
 export const RunningApp = {
   extends: [RunningApplication],
-  observe () {
-    return <RunningApps />
-  },
 
-  describe ({data, props}) {
+  describe ({observe, props}) {
+    const data = observe(<RunningApps />)
     const apps = _.map(data, app => ({text: app.name, value: app}))
 
     return (
-      <label text='application' suppressEmpty={props.suppressEmpty}>
+      <placeholder argument='application' suppressEmpty={props.suppressEmpty}>
         <list strategy='fuzzy' items={apps} />
-      </label>
+      </placeholder>
     )
   }
 }
