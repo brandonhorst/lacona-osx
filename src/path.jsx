@@ -87,14 +87,16 @@ const FileSource = {
 // }
 
 function describeFile (input, observe, Source) {
-  const path = _.endsWith(input, '/') ? input : dirname(input)
-  const data = observe(<Source path={path} />)
-  const items = _.map(data, ({text, value}) => ({
-    text,
-    value,
-    annotation: {type: 'icon', path: value}
-  }))
-  return <list items={items} />
+  if (/^(~\/|\/)/.test(input)) {
+    const path = _.endsWith(input, '/') ? input : dirname(input)
+    const data = observe(<Source path={path} />)
+    const items = _.map(data, ({text, value}) => ({
+      text,
+      value,
+      annotation: {type: 'icon', path: value}
+    }))
+    return <list items={items} />
+  }
 }
 
 export const FilePath = {
