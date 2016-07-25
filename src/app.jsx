@@ -5,6 +5,8 @@ import { createElement } from 'elliptical'
 import { map } from 'rxjs/operator/map'
 import { mergeMap } from 'rxjs/operator/mergeMap'
 import { fetchApplication, watchApplications, openFile, openURLInApplication, openFileInApplication } from 'lacona-api'
+import { subPaths } from './utils'
+import { dirname } from 'path'
 
 class AppObject {
   constructor({name, path}) {
@@ -70,7 +72,8 @@ export const App = {
     const apps = _.map(data, app => ({
       text: app.name,
       value: app,
-      annotation: {type: 'icon', path: app.path}
+      annotation: {type: 'icon', path: app.path},
+      qualifiers: subPaths(dirname(app.path))
     }))
 
     return (

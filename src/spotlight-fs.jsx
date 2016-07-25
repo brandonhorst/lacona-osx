@@ -3,32 +3,16 @@ import _ from 'lodash'
 import {createElement} from 'elliptical'
 import {File, Directory} from 'lacona-phrases'
 import {fetchFiles} from 'lacona-api'
-import {basename, dirname, join} from 'path'
+import {basename, dirname} from 'path'
 import {fromPromise} from 'rxjs/observable/fromPromise'
 import {startWith} from 'rxjs/operator/startWith'
+import {subPaths} from './utils'
 
 const Files = {
   fetch ({props}) {
     return fromPromise(fetchFiles({query: props.query}))::startWith([])
   },
   clear: true
-}
-
-function subPaths (dir) {
-  const paths = []
-  let oldPath
-  while (true) {
-    const base = basename(dir)
-    const newPath = oldPath ? join(base, oldPath) : base
-    oldPath = newPath
-    paths.push(newPath)
-    dir = dirname(dir)
-    if (dir === '/' || dir === '.') {
-      break
-    }
-  }
-
-  return paths
 }
 
 function describeFiles (input, observe) {
