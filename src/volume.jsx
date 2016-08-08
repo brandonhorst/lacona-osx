@@ -7,6 +7,7 @@ import {Observable} from 'rxjs/Observable'
 import {map} from 'rxjs/operator/map'
 import {mergeMap} from 'rxjs/operator/mergeMap'
 import {startWith} from 'rxjs/operator/startWith'
+import {concat} from 'rxjs/operator/concat'
 import {fromPromise} from 'rxjs/observable/fromPromise'
 
 class VolumeObject {
@@ -34,9 +35,11 @@ const Volumes = {
         })
       })
     } else {
-      return activate::mergeMap(() => {
-        return fromPromise(fetchMountedVolumes())
-      })::map((volumes) => {
+      return fromPromise(fetchMountedVolumes())::concat(
+        activate::mergeMap(() => {
+          return fromPromise(fetchMountedVolumes())
+        })
+      )::map((volumes) => {
         return _.map(volumes, volume => new VolumeObject(volume))
       })::startWith([])
     }

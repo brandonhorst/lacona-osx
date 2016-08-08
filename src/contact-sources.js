@@ -3,6 +3,7 @@ import {isDemo, fetchContacts, fetchUserContact} from 'lacona-api'
 import {Observable} from 'rxjs/Observable'
 import {mergeMap} from 'rxjs/operator/mergeMap'
 import {startWith} from 'rxjs/operator/startWith'
+import {concat} from 'rxjs/operator/concat'
 import {fromPromise} from 'rxjs/observable/fromPromise'
 
 export function possibleNameCombinations ({firstName, middleName, lastName, nickname, company}) {
@@ -72,9 +73,11 @@ export const UserContact = {
         })
       })
     } else {
-      return activate::mergeMap(() => {
-        return fromPromise(fetchUserContact())
-      })::startWith({})
+      return fromPromise(fetchUserContact())::concat(
+        activate::mergeMap(() => {
+          return fromPromise(fetchUserContact())
+        })
+      )::startWith({})
     }
   }
 }
@@ -88,9 +91,11 @@ export const Contacts = {
         })
       })
     } else {
-      return activate::mergeMap(() => {
-        return fromPromise(fetchContacts())
-      })::startWith([])
+      return fromPromise(fetchContacts())::concat(
+        activate::mergeMap(() => {
+          return fromPromise(fetchContacts())
+        })
+      )::startWith([])
     }
   }
 }
