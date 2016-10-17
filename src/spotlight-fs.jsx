@@ -26,7 +26,7 @@ function describeFiles (input, observe) {
       text: basename(path),
       value: path,
       qualifiers: subPaths(dirname(path)),
-      annotation: {type: 'icon', path: path}
+      annotation: {type: 'icon', value: path}
     }))
     .value()
   return <list strategy='contain' items={items} limit={10} strategy='fuzzy' />
@@ -43,7 +43,7 @@ function describeFolders (input, observe) {
       text: basename(path),
       value: path,
       qualifiers: subPaths(dirname(path)),
-      annotation: {type: 'icon', path: path}
+      annotation: {type: 'icon', value: path}
     }))
     .value()
   return <list strategy='contain' items={items} limit={10} strategy='fuzzy' />

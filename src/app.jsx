@@ -72,7 +72,7 @@ export const App = {
     const apps = _.map(data, app => ({
       text: app.name,
       value: app,
-      annotation: {type: 'icon', path: app.path},
+      annotation: {type: 'icon', value: app.path},
       qualifiers: subPaths(dirname(app.path))
     }))
 

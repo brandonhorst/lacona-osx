@@ -38,7 +38,7 @@ function describeRelationship (data, map) {
       const relationships = relationshipMap[relationship] || [relationship]
       const qualifiers = getNameQualifiers({firstName, lastName, company})
       qualifiers.push([map[label] ? map[label][0] : label])
-      const annotation = {type: 'contact', id}
+      const annotation = {type: 'contact', value: id}
       return (
         <choice limit={1} value={value} annotation={annotation} qualifiers={qualifiers}>
           {_.map(relationships, oneRelationship => (
@@ -91,7 +91,7 @@ export const RelationshipDate = {
       .map(({relationship, value, label, id, firstName, lastName, company}) => {
         const relationships = relationshipMap[relationship] || [relationship]
         const dateNames = dateMap[label] || [label]
-        const annotation = {type: 'contact', id}
+        const annotation = {type: 'contact', value: id}
         const qualifiers = getNameQualifiers({firstName, lastName, company})
         return (
           <choice limit={1} value={value} annotation={annotation} qualifiers={qualifiers}>

@@ -16,7 +16,7 @@ function spreadElementsFromContacts (data, map) {
       text,
       value,
       qualifiers,
-      annotation: {type: 'contact', id}
+      annotation: {type: 'contact', value: id}
     }))
 
     return <list strategy='fuzzy' items={items} limit={1} />
@@ -51,7 +51,7 @@ function contactElementsFromContacts (data) {
     const items = _.map(possibleNames, text => ({
       text,
       value,
-      annotation: {type: 'contact', id}
+      annotation: {type: 'contact', value: id}
     }))
 
     return <list strategy='fuzzy' items={items} limit={1} />
@@ -126,7 +126,7 @@ export const ContactDate = {
                     <literal
                       strategy='fuzzy'
                       text={`${possibleName}'s`}
-                      annotation={{type: 'contact', id}} />
+                      annotation={{type: 'contact', value: id}} />
                   </placeholder>
                   <literal text=' ' />
                   <placeholder argument='special day' suppressEmpty={false}>

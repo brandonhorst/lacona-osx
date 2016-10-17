@@ -34,7 +34,7 @@ export const Pane = {
     const panes = _.map(data, pane => ({
       text: pane.name,
       value: pane,
-      annotation: {type: 'icon', path: pane.path}
+      annotation: {type: 'icon', value: pane.path}
     }))
 
     return (

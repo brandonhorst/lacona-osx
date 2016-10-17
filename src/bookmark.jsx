@@ -24,7 +24,7 @@ export const Bookmark = {
     const bookmarks = data.map(bookmark => ({
       text: bookmark.name,
       value: bookmark.url,
-      annotation: {type: 'icon', path: bookmark.path}
+      annotation: {type: 'icon', value: bookmark.path}
     }))
 
     return (

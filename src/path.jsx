@@ -93,7 +93,7 @@ function describeFile (input, observe, Source) {
     const items = _.map(data, ({text, value}) => ({
       text,
       value,
-      annotation: {type: 'icon', path: value}
+      annotation: {type: 'icon', value}
     }))
     return <list items={items} />
   }
