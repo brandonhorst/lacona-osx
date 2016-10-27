@@ -2,31 +2,30 @@
 
 import _ from 'lodash'
 import { Contacts, possibleNameCombinations, spread } from './contact-sources'
-import { createElement } from 'elliptical'
+import { createElement, unique } from 'elliptical'
 import { Day, EmailAddress, PhoneNumber, ContactCard } from 'lacona-phrases'
 import { dateMap } from './constant-maps'
 import { openURL } from 'lacona-api'
 import * as constantMaps from './constant-maps'
 
 function spreadElementsFromContacts (data, map) {
-  const elements = _.map(data, ({firstName, middleName, lastName, nickname, company, value, label, id}) => {
-    const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname, company})
-    const qualifiers = [map[label] ? map[label][0] : label]
-    const items = _.map(possibleNames, text => ({
-      text,
-      value,
-      qualifiers,
-      annotation: {type: 'contact', value: id}
-    }))
-
-    return <list strategy='fuzzy' items={items} limit={1} />
-  })
+  const items = _.chain(data)
+    .map(({firstName, middleName, lastName, nickname, company, value, label, id}) => {
+      const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname, company})
+      const qualifiers = [map[label] ? map[label][0] : label]
+      return _.map(possibleNames, poss => ({
+        text: poss.name,
+        value,
+        qualifiers: _.concat(qualifiers, poss.qualifiers),
+        annotation: {type: 'contact', value: id}
+      }))
+    })
+    .flatten()
+    .value()
 
   return (
     <placeholder argument='contact'>
-      <choice limit={10}>
-        {elements}
-      </choice>
+      <list items={items} limit={10} unique />
     </placeholder>
   )
 }
@@ -37,6 +36,7 @@ class ContactObject {
     this.name = name
     this.type = 'contact card'
     this.limitId = 'contact-card'
+    this[unique] = id
   }
 
   open () {
@@ -45,23 +45,23 @@ class ContactObject {
 }
 
 function contactElementsFromContacts (data) {
-  const elements = _.map(data, ({firstName, middleName, lastName, nickname, company, id}) => {
-    const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname, company})
-    const value = new ContactObject({id, name: possibleNames[0]})
-    const items = _.map(possibleNames, text => ({
-      text,
-      value,
-      annotation: {type: 'contact', value: id}
-    }))
-
-    return <list strategy='fuzzy' items={items} limit={1} />
-  })
+  const items = _.chain(data)
+    .map(({firstName, middleName, lastName, nickname, company, id}) => {
+      const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname, company})
+      const value = new ContactObject({id, name: possibleNames[0]})
+      return _.map(possibleNames, poss => ({
+        text: poss.name,
+        value,
+        qualifiers: poss.qualifiers,
+        annotation: {type: 'contact', value: id}
+      }))
+    })
+    .flatten()
+    .value()
 
   return (
     <placeholder argument='contact'>
-      <choice limit={10}>
-        {elements}
-      </choice>
+      <list items={items} limit={10} unique />
     </placeholder>
   )
 }
@@ -81,7 +81,8 @@ function spreadDates (ary) {
 export const Contact = {
   extends: [ContactCard],
 
-  describe ({observe}) {
+  describe ({observe, config}) {
+    if (!config.enableContactCards) return
     const data = observe(<Contacts />)
     return contactElementsFromContacts(data)
   }
@@ -90,7 +91,8 @@ export const Contact = {
 export const ContactEmail = {
   extends: [EmailAddress],
   
-  describe ({observe}) {
+  describe ({observe, config}) {
+    if (!config.enableContactInfo) return
     const data = observe(<Contacts />)
     const emails = spreadEmails(data)
     return spreadElementsFromContacts(emails, constantMaps.emailLabelMap)
@@ -100,7 +102,8 @@ export const ContactEmail = {
 export const ContactPhoneNumber = {
   extends: [PhoneNumber],
   
-  describe ({observe}) {
+  describe ({observe, config}) {
+    if (!config.enableContactInfo) return
     const data = observe(<Contacts />)
     const phoneNumbers = spreadPhoneNumbers(data)
     return spreadElementsFromContacts(phoneNumbers, constantMaps.phoneNumberMap)
@@ -110,43 +113,32 @@ export const ContactPhoneNumber = {
 export const ContactDate = {
   extends: [Day],
 
-  describe ({observe, props}) {
+  describe ({observe, props, config}) {
+    if (!config.enableContactDates) return
     const data = observe(<Contacts />)
     const dates = spreadDates(data)
     const items = _.chain(dates)
       .map(({firstName, middleName, lastName, nickname, company, value, label, id}) => {
+        const trueValue = _.clone(value)
+        trueValue[unique] = `${id}@${label}`
         const dateNames = dateMap[label] || [label]
         const possibleNames = possibleNameCombinations({firstName, middleName, lastName, nickname})
-        return (
-          <choice limit={1} value={value}>
-            {_.map(dateNames, dateName => {
-              return _.map(possibleNames, possibleName => (
-                <sequence>
-                  <placeholder argument='contact'>
-                    <literal
-                      strategy='fuzzy'
-                      text={`${possibleName}'s`}
-                      annotation={{type: 'contact', value: id}} />
-                  </placeholder>
-                  <literal text=' ' />
-                  <placeholder argument='special day' suppressEmpty={false}>
-                    <literal strategy='fuzzy' text={dateName} />
-                  </placeholder>
-                </sequence>
-              ))
-            })}
-          </choice>
-        )
+        return _.map(dateNames, dateName => {
+          return _.map(possibleNames, poss => ({
+            text: `${poss.name}'s ${dateName}`,
+            value: trueValue,
+            qualifiers: poss.qualifiers
+          }))
+        })
       })
+      .flattenDeep()
       .value()
 
     return (
       <sequence>
         {props.prepositions ? <literal text='on ' category='conjunction' optional limited preferred /> : null}
         <placeholder argument='special day' merge>
-          <choice limit={10}>
-            {items}
-          </choice>
+          <list items={items} limit={10} unique />
         </placeholder>
       </sequence>
     )

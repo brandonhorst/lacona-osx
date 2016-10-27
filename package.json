@@ -3,7 +3,7 @@
   "version": "1.0.4",
   "description": "Lacona Extensions for OSX, tied into the global-context hosted API",
   "lacona": {
-    "config": "config.json"
+    "title": "macOS Integration"
   },
   "main": "lib-node/index.js",
   "jsnext:main": "lib-es/index.js",
@@ -38,24 +38,25 @@
   },
   "homepage": "https://github.com/lacona/lacona-osx",
   "devDependencies": {
-    "babel-cli": "^6.16.0",
+    "babel-cli": "^6.18.0",
     "babel-plugin-syntax-async-functions": "^6.13.0",
     "babel-plugin-transform-async-to-generator": "^6.16.0",
     "babel-plugin-transform-function-bind": "^6.8.0",
     "babel-plugin-transform-react-jsx": "^6.8.0",
     "babel-plugin-transform-runtime": "^6.15.0",
-    "babel-preset-es2015": "^6.16.0",
+    "babel-preset-es2015": "^6.18.0",
     "babel-preset-es2015-native-modules": "^6.9.4",
     "babel-preset-es2015-node": "^6.1.1",
-    "babel-register": "^6.16.3",
-    "cross-env": "^3.1.2",
+    "babel-register": "^6.18.0",
+    "cross-env": "^3.1.3",
     "rimraf": "^2.5.4"
   },
   "dependencies": {
-    "babel-runtime": "^6.11.6",
-    "elliptical": "^2.0.0",
-    "lacona-api": "^1.4.0",
-    "lacona-phrases": "^1.0.1",
+    "babel-runtime": "^6.18.0",
+    "elliptical": "^2.1.0",
+    "lacona-api": "^1.4.1",
+    "lacona-phrases": "^1.1.0",
+    "lacona-source-helpers": "^2.0.2",
     "lodash": "^4.16.4",
     "rxjs": "^5.0.0-rc.1"
   },

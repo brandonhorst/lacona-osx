@@ -1,0 +1,188 @@
+{
+  "applicationsHeader": {
+    "type": "header",
+    "label": "Applications",
+    "examples": [
+      "open [![](/Applications/FaceTime.app/Contents/Resources/AppIcon.icns)FaceTime](application)",
+      "open [facebook.com](URL) in [![](/Applications/Safari.app/Contents/Resources/compass.icns)Safari](application)",
+      "open [![](/Applications/Calendar.app/Contents/Resources/App.icns)Calendar](application) and [![](/Applications/Notes.app/Contents/Resources/AppIcon.icns)Notes](application)"
+    ]
+  },
+  "enableApplications": {
+    "title": "Index Applications",
+    "type": "boolean",
+    "default": true
+  },
+  "applicationSearchDirectories": {
+    "type": "array",
+    "description": "Lacona will look for Applications in these directories",
+    "buttonDescription": "Lacona will look for Applications in these directories",
+    "title": "Application Search Directories",
+    "format": "table",
+    "sheet": true,
+    "items": {
+      "type": "string",
+      "title": "Directory",
+      "default": ""
+    },
+    "emptyMessage": "No Directories",
+    "default": [
+      "/Applications",
+      "/Applications/Xcode.app/Contents/Applications",
+      "/System/Library/CoreServices/Applications",
+      "~/Applications",
+      "/usr/local/Cellar",
+      "/opt/homebrew-cask/Caskroom"
+    ]
+  },
+  "namedApplications": {
+    "type": "array",
+    "title": "Other Applications",
+    "description": "These Applications will be available even if they are not in the Search Directories",
+    "buttonDescription": "These Applications will be available even if they are not in the Search Directories",
+    "format": "table",
+    "sheet": true,
+    "emptyMessage": "No Applications",
+    "items": {
+      "type": "string",
+      "title": "Application Name",
+      "default": ""
+    },
+    "default": [
+      "Finder"
+    ],
+    "separatorBelow": true
+  },
+  "systemPreferencesHeader": {
+    "type": "header",
+    "label": "System Preferences",
+    "examples": [
+      "open [Parental Controls](preference pane)"
+    ]
+  },
+  "enableSystemPreferences": {
+    "title": "Index System Preferences",
+    "type": "boolean",
+    "default": true,
+    "separatorBelow": true
+  },
+  "safariBookmarksHeader": {
+    "type": "header",
+    "label": "Safari Bookmarks",
+    "examples": [
+      "open [![](/Applications/Safari.app/Contents/Resources/compass.icns)Twitter](bookmark)",
+      "open [![](/Applications/Safari.app/Contents/Resources/compass.icns)Reddit](bookmark) in [](application)"
+    ]
+  },
+  "enableSafariBookmarks": {
+    "title": "Index Safari Bookmarks",
+    "type": "boolean",
+    "default": true,
+    "description": "If disabled, you will still be able to enter web addresses by specifying the URL",
+    "separatorBelow": true
+  },
+  "spotlightHeader": {
+    "type": "header",
+    "label": "Files & Directories",
+    "examples": [
+      "open [![](/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericDocumentIcon.icns)todo.txt](file)",
+      "open [![](/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericDocumentIcon.icns)myImage.png](file) in [](application)",
+      "open [![](/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/DownloadsFolder.icns)Downloads](directory)",
+      "open [![](/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/DocumentsFolderIcon.icns)Documents](directory) in [](application)"
+    ]
+  },
+  "enableSpotlightFiles": {
+    "title": "Index Files",
+    "type": "boolean",
+    "default": true,
+    "description": "If disabled, you will still be able to enter files by specifying the path."
+  },
+  "enableSpotlightDirectories": {
+    "title": "Index Directories",
+    "type": "boolean",
+    "default": true,
+    "description": "If disabled, you will still be able to enter directories by specifying the path.",
+    "separatorBelow": true
+  },
+  "contactsHeader": {
+    "type": "header",
+    "label": "Contacts",
+    "examples": [
+      "open [![](img/tim.png)Tim Cook](contact)",
+      "call [![](img/jony.png)Jony Ive](contact)",
+      "remind me to [call mom](reminder title) on [my mom's birthday](date and time)",
+      "remind me to [pick up flowers](reminder title) on [my anniversary](date and time)"
+    ]
+  },
+  "enableContactCards": {
+    "title": "Index Contact Cards",
+    "type": "boolean",
+    "default": true
+  },
+  "enableContactInfo": {
+    "title": "Index Contact Phone Numbers & Email Addresses",
+    "type": "boolean",
+    "default": true,
+    "description": "If disabled, you will still be able to enter phone numbers and email addresses by specifying them manually"
+  },
+  "enableContactDates": {
+    "title": "Index Contact Dates",
+    "type": "boolean",
+    "default": true,
+    "description": "If disabled, you will still be able to enter dates manually",
+    "separatorBelow": true
+  },
+  "clipboardHeader": {
+    "type": "header",
+    "label": "Clipboard",
+    "examples": [
+      "search [Google](search engine) for [![](img/Cut-48.png)clipboard contents](clipboard contents)",
+      "remind me to [![](img/Cut-48.png)clipboard contents](clipboard contents) tomorrow at 4pm",
+      "open [![](img/Cut-48.png)clipboard contents](clipboard contents)",
+      "open [![](img/Cut-48.png)clipboard contents](clipboard contents) in [![](/Applications/Safari.app/Contents/Resources/compass.icns)Safari](application)",
+      "open [![](img/Cut-48.png)clipboard contents](clipboard contents)",
+      "open [![](img/Cut-48.png)clipboard contents](clipboard contents) in [![](/Applications/Safari.app/Contents/Resources/compass.icns)Safari](application)"
+    ]
+  },
+  "enableClipboardText": {
+    "title": "Suggest Clipboard Text",
+    "type": "boolean",
+    "default": true,
+    "description": "Where applicable, Lacona will suggest any text currently on the clipboard"
+  },
+  "enableClipboardURLs": {
+    "title": "Suggest Clipboard URLs",
+    "type": "boolean",
+    "default": true,
+    "description": "Where applicable, Lacona will suggest any URLs currently on the clipboard"
+  },
+  "enableClipboardFiles": {
+    "title": "Suggest Clipboard Files",
+    "type": "boolean",
+    "default": true,
+    "description": "Where applicable, Lacona will suggest any Files currently on the clipboard",
+    "separatorBelow": true
+  },
+  "contextHeader": {
+    "type": "header",
+    "label": "System Context",
+    "examples": [
+      "open [finder directory](clipboard contents)",
+      "open [clipboard contents](clipboard contents) in [![]()Safari](application)",
+      "open [clipboard contents](clipboard contents)",
+      "open [clipboard contents](clipboard contents) in [![]()Safari](application)"
+    ]
+  },
+  "enableContextDirectory": {
+    "title": "Suggest Working Directory",
+    "type": "boolean",
+    "default": true,
+    "description": "Where applicable, Lacona will suggest the directory currently open in the frontmost Finder window"
+  },
+  "enableContextURL": {
+    "title": "Suggest Current Browser URL",
+    "type": "boolean",
+    "default": true,
+    "description": "Where applicable, Lacona will suggest the URL currently open in the frontmost Safari window"
+  }
+}

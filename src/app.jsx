@@ -37,7 +37,7 @@ async function getSpecificApps (applications) {
 const Applications = {
   fetch ({props}) {
     return watchApplications({
-      directories: props.config.searchDirectories
+      directories: props.applicationSearchDirectories
     })::map(data => {
       // Add in the alternativeNames, but remove .app and case-insensitive uniquify
       const newData = _.flatMap(data, item => {
@@ -56,7 +56,7 @@ const Applications = {
 
       return newData
     })::mergeMap(async data => {
-      const specificApps = await getSpecificApps(props.config.applications)
+      const specificApps = await getSpecificApps(props.namedApplications)
       return data.concat(specificApps)
     })::map((data) => {
       return _.map(data, (item) => new AppObject(item))
@@ -68,7 +68,9 @@ export const App = {
   extends: [Application],
 
   describe({observe, props, config}) {
-    const data = observe(<Applications config={config.applications} />)
+    const data = observe(<Applications
+      namedApplications={config.namedApplications}
+      applicationSearchDirectories={config.applicationSearchDirectories} />)
     const apps = _.map(data, app => ({
       text: app.name,
       value: app,

@@ -51,30 +51,34 @@ function describeFolders (input, observe) {
 
 export const SpotlightFile = {
   extends: [File],
-  describe ({props, observe}) {
-    return (
-      <placeholder argument='file'>
-        <dynamic
-          describe={input => describeFiles(input, observe)}
-          greedy
-          splitOn={props.splitOn}
-          limit={1} />
-      </placeholder>
-    )
+  describe ({props, observe, config}) {
+    if (config.enableSpotlightFiles) {
+      return (
+        <placeholder argument='file'>
+          <dynamic
+            describe={input => describeFiles(input, observe)}
+            greedy
+            splitOn={props.splitOn}
+            limit={1} />
+        </placeholder>
+      )
+    }
   }
 }
 
 export const SpotlightDirectory = {
   extends: [Directory],
-  describe ({props, observe}) {
-    return (
-      <placeholder argument='folder'>
-        <dynamic
-          describe={input => describeFolders(input, observe)}
-          greedy
-          splitOn={props.splitOn}
-          limit={1} />
-      </placeholder>
-    )
+  describe ({props, observe, config}) {
+    if (config.enableSpotlightDirectories) {
+      return (
+        <placeholder argument='folder'>
+          <dynamic
+            describe={input => describeFolders(input, observe)}
+            greedy
+            splitOn={props.splitOn}
+            limit={1} />
+        </placeholder>
+      )
+    }
   }
 }

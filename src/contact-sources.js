@@ -9,25 +9,32 @@ import {fromPromise} from 'rxjs/observable/fromPromise'
 export function possibleNameCombinations ({firstName, middleName, lastName, nickname, company}) {
   const possibleNames = []
   if (firstName && lastName) {
-    possibleNames.push(`${firstName} ${lastName}`)
+    possibleNames.push({name: `${firstName} ${lastName}`, qualifiers: []})
   }
   if (firstName) {
-    possibleNames.push(firstName)
+    if (lastName) {
+      possibleNames.push({name: firstName, qualifiers: [lastName]})
+    } else {
+      possibleNames.push({name: firstName, qualifiers: []})
+    }
   }
   if (lastName && !firstName) {
-    possibleNames.push(lastName)
+    possibleNames.push({name: lastName, qualifiers: []})
   }
 
   if (company && !firstName && !lastName) {
-    possibleNames.push(company)
+    possibleNames.push({name: company, qualifiers: []})
   }
 
   if (nickname) {
     if (firstName && lastName) {
-      possibleNames.push(`${firstName} "${nickname}" ${lastName}`)
-    }
-    if (lastName) {
-      possibleNames.push(`${nickname} ${lastName}`)
+      possibleNames.push({name: nickname, qualifiers: [`${firstName} ${lastName}`]})
+    } else if (lastName) {
+      possibleNames.push({name: nickname, qualifiers: [lastName]})
+    } else if (firstName) {
+      possibleNames.push({name: nickname, qualifiers: [firstName]})
+    } else {
+      possibleNames.push({name: nickname, qualifiers: []})
     }
   }
 

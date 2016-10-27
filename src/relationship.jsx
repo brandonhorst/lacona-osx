@@ -1,7 +1,7 @@
 /** @jsx createElement */
 
 import _ from 'lodash'
-import { createElement } from 'elliptical'
+import { createElement, unique } from 'elliptical'
 import { Day, EmailAddress, PhoneNumber } from 'lacona-phrases'
 import { dateMap, relationshipMap, phoneNumberMap, emailLabelMap } from './constant-maps'
 import { spread, spreadObject, UserContact } from './contact-sources'
@@ -39,24 +39,26 @@ function describeRelationship (data, map) {
       const qualifiers = getNameQualifiers({firstName, lastName, company})
       qualifiers.push([map[label] ? map[label][0] : label])
       const annotation = {type: 'contact', value: id}
-      return (
-        <choice limit={1} value={value} annotation={annotation} qualifiers={qualifiers}>
-          {_.map(relationships, oneRelationship => (
-            <literal strategy='fuzzy' text={`my ${oneRelationship.toLowerCase()}`} />
-          ))}
-          {_.map(relationships, oneRelationship => (
-            <literal strategy='fuzzy' text={`${_.capitalize(oneRelationship)}`} />
-          ))}
-        </choice>
-      )
+      return _.map(relationships, oneRelationship => {
+        return [{
+          text: `my ${oneRelationship.toLowerCase()}`,
+          value,
+          annotation,
+          qualifiers
+        }, {
+          text: `my ${_.capitalize(oneRelationship)}`,
+          value,
+          annotation,
+          qualifiers
+        }]
+      })
     })
+    .flattenDeep()
     .value()
 
   return (
     <placeholder argument='relationship'>
-      <choice>
-        {items}
-      </choice>
+      <list items={items} limit={10} unique />
     </placeholder>
   )
 }
@@ -64,7 +66,9 @@ function describeRelationship (data, map) {
 export const RelationshipPhoneNumber = {
   extends: [PhoneNumber],
 
-  describe ({observe}) {
+  describe ({observe, config}) {
+    if (!config.enableContactInfo) return
+      
     const data = observe(<UserContact />)
     const phoneNumbers = spreadPhoneNumbers(spreadRelationships(data))
     return describeRelationship(phoneNumbers, phoneNumberMap)
@@ -74,7 +78,9 @@ export const RelationshipPhoneNumber = {
 export const RelationshipEmail = {
   extends: [EmailAddress],
 
-  describe ({observe}) {
+  describe ({observe, config}) {
+    if (!config.enableContactInfo) return
+
     const data = observe(<UserContact />)
     const emails = spreadEmails(spreadRelationships(data))
     return describeRelationship(emails, emailLabelMap)
@@ -84,55 +90,71 @@ export const RelationshipEmail = {
 export const RelationshipDate = {
   extends: [Day],
 
-  describe ({observe, props}) {
+  describe ({observe, props, config}) {
+    if (!config.enableContactDates) return
+
     const data = observe(<UserContact />)
     const dates = spreadDates(spreadRelationships(data))
     const items = _.chain(dates)
       .map(({relationship, value, label, id, firstName, lastName, company}) => {
         const relationships = relationshipMap[relationship] || [relationship]
+        const trueValue = _.clone(value)
+        trueValue[unique] = `${id}@${label}`
+
         const dateNames = dateMap[label] || [label]
         const annotation = {type: 'contact', value: id}
         const qualifiers = getNameQualifiers({firstName, lastName, company})
-        return (
-          <choice limit={1} value={value} annotation={annotation} qualifiers={qualifiers}>
-            {_.map(dateNames, dateName => {
-              return [
-                _.map(relationships, oneRelationship => (
-                  <sequence>
-                    <placeholder argument='relationship'>
-                      <literal strategy='fuzzy' text={`my ${oneRelationship.toLowerCase()}'s`} />
-                    </placeholder>
-                    <literal text=' ' />
-                    <placeholder argument='special day'>
-                      <literal strategy='fuzzy' text={dateName} />
-                    </placeholder>
-                  </sequence>
-                )),
-                _.map(relationships, oneRelationship => (
-                  <sequence>
-                    <placeholder argument='relationship'>
-                      <literal text={`${_.capitalize(oneRelationship)}'s`} />
-                    </placeholder>
-                    <literal text=' ' />
-                    <placeholder argument='special day'>
-                      <literal text={dateName} />
-                    </placeholder>
-                  </sequence>
-                ))
-              ]
-            })}
-          </choice>
-        )
-      })
+        return _.map(dateNames, dateName => {
+          return _.map(relationships, oneRelationship => ([{
+            text: `my ${oneRelationship.toLowerCase()}'s ${dateName}`,
+            value: trueValue,
+            annotation,
+            qualifiers
+          }, {
+            text: `${_.capitalize(oneRelationship)}'s ${dateName}`,
+            value: trueValue,
+            annotation,
+            qualifiers
+          }]))
+        })
+        // return (
+        //   <choice limit={1} value={value} annotation={annotation} qualifiers={qualifiers}>
+        //     {_.map(dateNames, dateName => {
+        //       return [
+        //         _.map(relationships, oneRelationship => (
+        //           <sequence>
+        //             <placeholder argument='relationship'>
+        //               <literal strategy='fuzzy' text={`my ${oneRelationship.toLowerCase()}'s`} />
+        //             </placeholder>
+        //             <literal text=' ' />
+        //             <placeholder argument='special day'>
+        //               <literal strategy='fuzzy' text={dateName} />
+        //             </placeholder>
+        //           </sequence>
+        //         )),
+        //         _.map(relationships, oneRelationship => (
+        //           <sequence>
+        //             <placeholder argument='relationship'>
+        //               <literal text={`${_.capitalize(oneRelationship)}'s`} />
+        //             </placeholder>
+        //             <literal text=' ' />
+        //             <placeholder argument='special day'>
+        //               <literal text={dateName} />
+        //             </placeholder>
+        //           </sequence>
+        //         ))
+        //       ]
+        //     })}
+        //   </choice>
+        // )
+      }).flattenDeep()
       .value()
 
     return (
       <sequence>
         {props.prepositions ? <literal text='on ' category='conjunction' optional limited preferred /> : null}
         <placeholder argument='special day' merge>
-          <choice>
-            {items}
-          </choice>
+          <list items={items} limit={10} unique />
         </placeholder>
       </sequence>
     )
