@@ -1,7 +1,7 @@
 /** @jsx createElement */
 import _ from 'lodash'
 import { Application } from 'lacona-phrases'
-import { createElement } from 'elliptical'
+import { createElement, unique } from 'elliptical'
 import { map } from 'rxjs/operator/map'
 import { mergeMap } from 'rxjs/operator/mergeMap'
 import { fetchApplication, watchApplications, openFile, openURLInApplication, openFileInApplication } from 'lacona-api'
@@ -13,6 +13,7 @@ class AppObject {
     this.name = name
     this.type = 'application'
     this.path = path
+    this[unique] = path
   }
 
   open () {
@@ -34,7 +35,7 @@ async function getSpecificApps (applications) {
   return _.filter(info)
 }
 
-const Applications = {
+export const ApplicationSource = {
   fetch ({props}) {
     return watchApplications({
       directories: props.applicationSearchDirectories
@@ -68,7 +69,7 @@ export const App = {
   extends: [Application],
 
   describe({observe, props, config}) {
-    const data = observe(<Applications
+    const data = observe(<ApplicationSource
       namedApplications={config.namedApplications}
       applicationSearchDirectories={config.applicationSearchDirectories} />)
     const apps = _.map(data, app => ({
@@ -80,7 +81,7 @@ export const App = {
 
     return (
       <placeholder argument='application' suppressEmpty={props.suppressEmpty}>
-        <list strategy='fuzzy' items={apps} limit={10} />
+        <list strategy='fuzzy' items={apps} limit={10} unique />
       </placeholder>
     )
   }

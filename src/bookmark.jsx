@@ -4,7 +4,7 @@ import { URL } from 'lacona-phrases'
 import { watchBookmarks } from 'lacona-api'
 import { map } from 'rxjs/operator/map'
 
-const Bookmarks = {
+export const BookmarkSource = {
   fetch () {
     return watchBookmarks()
   }
@@ -15,7 +15,7 @@ export const Bookmark = {
 
   describe ({observe, config}) {
     if (config.enableSafariBookmarks) {
-      const data = observe(<Bookmarks />)
+      const data = observe(<BookmarkSource />)
       const bookmarks = data.map(bookmark => ({
         text: bookmark.name,
         value: bookmark.url,

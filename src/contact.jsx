@@ -25,7 +25,7 @@ function spreadElementsFromContacts (data, map) {
 
   return (
     <placeholder argument='contact'>
-      <list items={items} limit={10} unique />
+      <list items={items} limit={10} unique strategy='contain' />
     </placeholder>
   )
 }
@@ -61,7 +61,7 @@ function contactElementsFromContacts (data) {
 
   return (
     <placeholder argument='contact'>
-      <list items={items} limit={10} unique />
+      <list items={items} limit={10} unique strategy='contain' />
     </placeholder>
   )
 }
@@ -93,6 +93,7 @@ export const ContactEmail = {
   
   describe ({observe, config}) {
     if (!config.enableContactInfo) return
+
     const data = observe(<Contacts />)
     const emails = spreadEmails(data)
     return spreadElementsFromContacts(emails, constantMaps.emailLabelMap)
@@ -104,6 +105,7 @@ export const ContactPhoneNumber = {
   
   describe ({observe, config}) {
     if (!config.enableContactInfo) return
+
     const data = observe(<Contacts />)
     const phoneNumbers = spreadPhoneNumbers(data)
     return spreadElementsFromContacts(phoneNumbers, constantMaps.phoneNumberMap)
@@ -115,6 +117,7 @@ export const ContactDate = {
 
   describe ({observe, props, config}) {
     if (!config.enableContactDates) return
+
     const data = observe(<Contacts />)
     const dates = spreadDates(data)
     const items = _.chain(dates)
@@ -138,7 +141,7 @@ export const ContactDate = {
       <sequence>
         {props.prepositions ? <literal text='on ' category='conjunction' optional limited preferred /> : null}
         <placeholder argument='special day' merge>
-          <list items={items} limit={10} unique />
+          <list items={items} limit={10} unique strategy='contain' />
         </placeholder>
       </sequence>
     )

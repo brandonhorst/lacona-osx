@@ -87,8 +87,10 @@ function describeClipboardFS (observe, config, filter, argument) {
 
   const clipboard = observe(<ClipboardSource />)
 
+  let items = []
+
   if (clipboard.files && clipboard.files.length > 0) {
-    const items = _.chain(clipboard.files)
+    items = _.chain(clipboard.files)
       .filter(file => filter(file))
       .map(file => ([
         {text: file, value: file},
@@ -98,7 +100,9 @@ function describeClipboardFS (observe, config, filter, argument) {
       ]))
       .flatten()
       .value()
+  }
 
+  if (items.length > 0) {
     return (
       <placeholder argument={argument} suppressEmpty={false}>
         <list items={items} unique annotation={{type: 'image', value: CLIPBOARD_ICON}} limit={1} />

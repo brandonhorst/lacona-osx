@@ -108,7 +108,7 @@
     "type": "header",
     "label": "Contacts",
     "examples": [
-      "open [![](img/tim.png)Tim Cook](contact)",
+      "open [![](img/cook.png)Tim Cook](contact)",
       "call [![](img/jony.png)Jony Ive](contact)",
       "remind me to [call mom](reminder title) on [my mom's birthday](date and time)",
       "remind me to [pick up flowers](reminder title) on [my anniversary](date and time)"
@@ -136,12 +136,10 @@
     "type": "header",
     "label": "Clipboard",
     "examples": [
-      "search [Google](search engine) for [![](img/Cut-48.png)clipboard contents](clipboard contents)",
-      "remind me to [![](img/Cut-48.png)clipboard contents](clipboard contents) tomorrow at 4pm",
-      "open [![](img/Cut-48.png)clipboard contents](clipboard contents)",
-      "open [![](img/Cut-48.png)clipboard contents](clipboard contents) in [![](/Applications/Safari.app/Contents/Resources/compass.icns)Safari](application)",
-      "open [![](img/Cut-48.png)clipboard contents](clipboard contents)",
-      "open [![](img/Cut-48.png)clipboard contents](clipboard contents) in [![](/Applications/Safari.app/Contents/Resources/compass.icns)Safari](application)"
+      "search [Google](search engine) for [![](img/Cut-48.png)setInterval](clipboard string)",
+      "remind me to [![](img/Cut-48.png)call Mark](clipboard string) tomorrow at 4pm",
+      "open [![](img/Cut-48.png)/tmp/file.txt](clipboard file)",
+      "open [![](img/Cut-48.png)~/Desktop](clipboard directory)"
     ]
   },
   "enableClipboardText": {
@@ -157,7 +155,7 @@
     "description": "Where applicable, Lacona will suggest any URLs currently on the clipboard"
   },
   "enableClipboardFiles": {
-    "title": "Suggest Clipboard Files",
+    "title": "Suggest Clipboard Files & Directories",
     "type": "boolean",
     "default": true,
     "description": "Where applicable, Lacona will suggest any Files currently on the clipboard",
@@ -167,10 +165,8 @@
     "type": "header",
     "label": "System Context",
     "examples": [
-      "open [finder directory](clipboard contents)",
-      "open [clipboard contents](clipboard contents) in [![]()Safari](application)",
-      "open [clipboard contents](clipboard contents)",
-      "open [clipboard contents](clipboard contents) in [![]()Safari](application)"
+      "move [~/myFile.txt](path) to [![](/System/Library/CoreServices/Finder.app/Contents/Resources/Finder.icns)~/Desktop](Finder directory)",
+      "translate [![](/Applications/Safari.app/Contents/Resources/compass.icns)https://apple.com](Safari URL)"
     ]
   },
   "enableContextDirectory": {

@@ -18,7 +18,7 @@ class PaneObject {
   }
 }
 
-const Panes = {
+export const PaneSource = {
   fetch () {
     return watchPreferencePanes()::map((data) => {
       return _.map(data, (item) => new PaneObject(item))
@@ -30,7 +30,7 @@ export const Pane = {
   extends: [PreferencePane],
 
   describe ({observe}) {
-    const data = observe(<Panes />)
+    const data = observe(<PaneSource />)
     const panes = _.map(data, pane => ({
       text: pane.name,
       value: pane,

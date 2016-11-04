@@ -1,6 +1,6 @@
 /** @jsx createElement */
 import _ from 'lodash'
-import {createElement} from 'elliptical'
+import {createElement, unique} from 'elliptical'
 import {MountedVolume} from 'lacona-phrases'
 import {isDemo, openFile, unmountVolume, fetchMountedVolumes} from 'lacona-api'
 import {Observable} from 'rxjs/Observable'
@@ -15,6 +15,8 @@ class VolumeObject {
     this.name = name
     this.path = path
     this.type = 'volume'
+    this[unique] = path
+
     if (canOpen) {
       this.open = () => openFile({path})
     }
@@ -25,7 +27,7 @@ class VolumeObject {
   }
 }
 
-const Volumes = {
+export const VolumeSource = {
   fetch ({activate}) {
     if (isDemo()) {
       return new Observable((observer) => {
@@ -50,14 +52,14 @@ export const Volume = {
   extends: [MountedVolume],
 
   describe ({observe, props}) {
-    const data = observe(<Volumes />)
+    const data = observe(<VolumeSource />)
     const volumes = _.chain(data)
       .map(obj => ({text: obj.name, value: obj}))
       .value()
 
     return (
       <placeholder argument='volume' suppressEmpty={props.suppressEmpty}>
-        <list strategy='fuzzy' items={volumes} />
+        <list strategy='fuzzy' items={volumes} unique />
       </placeholder>
     )
   }

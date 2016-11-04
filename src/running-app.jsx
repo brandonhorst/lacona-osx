@@ -1,6 +1,6 @@
 /** @jsx createElement */
 import _ from 'lodash'
-import {createElement} from 'elliptical'
+import {createElement, unique} from 'elliptical'
 import {RunningApplication} from 'lacona-phrases'
 import {isDemo, fetchRunningApplications, activateApplication, hideApplication, closeApplicationWindows, quitApplication, openFile} from 'lacona-api'
 import {Observable} from 'rxjs/Observable'
@@ -10,7 +10,7 @@ import {startWith} from 'rxjs/operator/startWith'
 import {concat} from 'rxjs/operator/concat'
 import {fromPromise} from 'rxjs/observable/fromPromise'
 
-const RunningApps = {
+export const RunningAppSource = {
   fetch ({activate}) {
     if (isDemo()) {
       return new Observable((observer) => {
@@ -49,6 +49,7 @@ class MenuBarAppObject {
     this.name = name
     this.type = 'application'
     this.bundleId = bundleId
+    this[unique] = path
   }
 
   quit () {
@@ -66,6 +67,7 @@ class DockAppObject {
     this.type = 'application'
     this.path = path
     this.bundleId = bundleId
+    this[unique] = path
   }
 
   activate () {
@@ -93,12 +95,12 @@ export const RunningApp = {
   extends: [RunningApplication],
 
   describe ({observe, props}) {
-    const data = observe(<RunningApps />)
+    const data = observe(<RunningAppSource />)
     const apps = _.map(data, app => ({text: app.name, value: app}))
 
     return (
       <placeholder argument='application' suppressEmpty={props.suppressEmpty}>
-        <list strategy='fuzzy' items={apps} />
+        <list strategy='fuzzy' items={apps} unique />
       </placeholder>
     )
   }

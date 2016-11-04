@@ -55,7 +55,7 @@ async function fetchCurrentDirectory () {
   const dir = await runApplescript({script: FETCH_CURRENT_FINDER_DIRECTORY_SCRIPT})
   if (dir) {
     return {
-      path: currentFinderDirectory,
+      path: dir,
       argument: 'finder directory',
       annotation : {type: 'icon', value: '/System/Library/CoreServices/Finder.app'}
     }
@@ -70,7 +70,7 @@ async function fetchCurrentURL () {
   const url = await runApplescript({script: FETCH_CURRENT_SAFARI_URL_SCRIPT})
   if (url) {
     return {
-      url: currentSafariURL,
+      url: url,
       argument: 'safari URL',
       annotation : {type: 'icon', value: '/Applications/Safari.app'}
     }
@@ -96,7 +96,7 @@ export const ContextDirectory = {
             {text: context.path},
             {text: context.argument, category:'symbol'},
             {text: 'context directory', category: 'symbol'}
-          ]} value={expandedPath} annotation={context.annotation} />
+          ]} value={expandedPath} annotation={context.annotation} limit={1} />
         </placeholder>
       )
     }
@@ -117,7 +117,7 @@ export const ContextURL = {
             {text: context.url},
             {text: context.argument, category:'symbol'},
             {text: 'context url', category: 'symbol'}
-          ]} value={context.url} annotation={context.annotation} />
+          ]} value={context.url} annotation={context.annotation} limit={1} />
         </placeholder>
       )
     }

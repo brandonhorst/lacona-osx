@@ -16,7 +16,7 @@ import { ContextDirectory } from './context'
 import { FilePath, DirectoryPath } from './path'
 import { Pane } from './preference-pane'
 import { RunningApp } from './running-app'
-import { SystemCommand } from './command'
+// import { SystemCommand } from './command'
 import { Volume } from './volume'
 
 export default [
@@ -42,6 +42,6 @@ export default [
   RelationshipEmail,
   RelationshipPhoneNumber,
   RunningApp,
-  SystemCommand,
+  // SystemCommand,
   Volume
 ]
