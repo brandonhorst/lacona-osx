@@ -44,11 +44,11 @@
     "rimraf": "^2.5.4"
   },
   "dependencies": {
-    "elliptical": "^2.1.1",
-    "lacona-api": "^1.5.0",
+    "elliptical": "^2.2.1",
+    "lacona-api": "^1.5.1",
     "lacona-phrases": "^1.1.0",
     "lacona-source-helpers": "^2.0.2",
-    "lodash": "^4.16.5",
+    "lodash": "^4.16.6",
     "rxjs": "^5.0.0-rc.1"
   },
   "babel": {
