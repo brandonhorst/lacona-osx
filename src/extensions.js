@@ -11,7 +11,7 @@ import { PersonalDate } from './me'
 import { Holiday } from './event'
 import { SpotlightFile, SpotlightDirectory } from './spotlight-fs'
 import { ClipboardString, ClipboardURL, ClipboardFile, ClipboardDirectory } from './clipboard'
-import { ContextDirectory } from './context'
+import { ContextDirectory, ContextURL } from './context'
 // import { OpenWindow } from './open-window'
 import { FilePath, DirectoryPath } from './path'
 import { Pane } from './preference-pane'
@@ -27,6 +27,7 @@ export default [
   ContactEmail,
   ContactPhoneNumber,
   ContextDirectory,
+  ContextURL,
   ClipboardString,
   ClipboardURL,
   ClipboardDirectory,

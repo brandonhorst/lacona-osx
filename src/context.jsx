@@ -108,6 +108,7 @@ export const ContextURL = {
 
   describe ({observe, config}) {
     if (!config.enableContextURL) return
+
     const context = observe(<CurrentURLSource />)
 
     if (context.url) {
