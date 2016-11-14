@@ -4,7 +4,8 @@
   "description": "Lacona Extensions for OSX, tied into the global-context hosted API",
   "lacona": {
     "title": "macOS Integration",
-    "customPreferences": true
+    "customPreferences": true,
+    "description": "Allow Lacona commands to access data from Spotlight and the current system context."
   },
   "main": "lib/index.js",
   "scripts": {
