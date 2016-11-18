@@ -138,12 +138,12 @@ export const ContactDate = {
       .value()
 
     return (
-      <sequence>
-        {props.prepositions ? <literal text='on ' category='conjunction' optional limited preferred /> : null}
-        <placeholder argument='special day' merge>
-          <list items={items} limit={10} unique strategy='contain' />
-        </placeholder>
-      </sequence>
+      <placeholder argument='special day'>
+        <sequence>
+          {props.prepositions ? <literal text='on ' decorate /> : null}
+          <list items={items} limit={10} unique strategy='contain' merge />
+        </sequence>
+      </placeholder>
     )
   }
 }
