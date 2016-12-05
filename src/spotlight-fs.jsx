@@ -22,6 +22,7 @@ function describeFiles (input, observe) {
 
   const items = _.chain(data)
     .filter(({contentType}) => contentType !== 'public.folder')
+    .filter('path')
     .map(({path}) => ({
       text: basename(path),
       value: path,
@@ -39,6 +40,7 @@ function describeFolders (input, observe) {
 
   const items = _.chain(data)
     .filter(({contentType}) => contentType === 'public.folder')
+    .filter('path')
     .map(({path}) => ({
       text: basename(path),
       value: path,
