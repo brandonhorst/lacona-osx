@@ -3,9 +3,9 @@
     "type": "header",
     "label": "Applications",
     "examples": [
-      "open [![](/Applications/FaceTime.app/Contents/Resources/AppIcon.icns)FaceTime](application)",
-      "open [facebook.com](URL) in [![](/Applications/Safari.app/Contents/Resources/compass.icns)Safari](application)",
-      "open [![](/Applications/Calendar.app/Contents/Resources/App.icns)Calendar](application) and [![](/Applications/Notes.app/Contents/Resources/AppIcon.icns)Notes](application)"
+      "open [![](img/facetime.tiff)FaceTime](application)",
+      "open [facebook.com](URL) in [![](img/safari.tiff)Safari](application)",
+      "open [![](img/calendar.tiff)Calendar](application) and [![](img/notes.tiff)Notes](application)"
     ]
   },
   "enableApplications": {
@@ -57,7 +57,7 @@
     "type": "header",
     "label": "System Preferences",
     "examples": [
-      "open [Parental Controls](preference pane)"
+      "open [![](img/localization.tiff)Localization](preference pane)"
     ]
   },
   "enableSystemPreferences": {
@@ -70,10 +70,10 @@
     "type": "header",
     "label": "Files & Directories",
     "examples": [
-      "open [![](/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericDocumentIcon.icns)todo.txt](file)",
-      "open [![](/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericDocumentIcon.icns)myImage.png](file) in [](application)",
-      "open [![](/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/DownloadsFolder.icns)Downloads](directory)",
-      "open [![](/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/DocumentsFolderIcon.icns)Documents](directory) in [](application)"
+      "open [![](img/genericdocument.tiff)todo.txt](file)",
+      "open [![](img/genericdocument.tiff)myImage.png](file) in [](application)",
+      "open [![](img/downloads.tiff)Downloads](directory)",
+      "open [![](img/documents.tiff)Documents](directory) in [](application)"
     ]
   },
   "enableSpotlightFiles": {
@@ -150,8 +150,8 @@
     "type": "header",
     "label": "System Context",
     "examples": [
-      "move [~/myFile.txt](path) to [![](/System/Library/CoreServices/Finder.app/Contents/Resources/Finder.icns)~/Desktop](Finder directory)",
-      "translate [![](/Applications/Safari.app/Contents/Resources/compass.icns)https://apple.com](Safari URL)"
+      "move [~/myFile.txt](path) to [![](img/finder.tiff)~/Desktop](Finder directory)",
+      "translate [![](img/safari.tiff)https://apple.com](Safari URL)"
     ]
   },
   "enableContextDirectory": {
