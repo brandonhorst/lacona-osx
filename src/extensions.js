@@ -3,7 +3,7 @@
 // export {default as Spotlight} from './spotlight'
 
 import { App } from './app'
-import { Bookmark } from './bookmark'
+// import { Bookmark } from './bookmark'
 // // import { BrowserTab } from './browser-tab'
 import { Contact, ContactDate, ContactEmail, ContactPhoneNumber } from './contact'
 import { RelationshipDate, RelationshipPhoneNumber, RelationshipEmail } from './relationship'
@@ -21,7 +21,7 @@ import { Volume } from './volume'
 
 export default [
   App,
-  Bookmark, /*BrowserTab,*/
+  // Bookmark, BrowserTab,
   Contact,
   ContactDate,
   ContactEmail,

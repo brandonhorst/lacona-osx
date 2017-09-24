@@ -54,6 +54,8 @@ export const Volume = {
   describe ({observe, props}) {
     const data = observe(<VolumeSource />)
     const volumes = _.chain(data)
+      .filter()
+      .filter('name')
       .map(obj => ({text: obj.name, value: obj}))
       .value()
 

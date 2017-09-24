@@ -31,11 +31,16 @@ export const Pane = {
 
   describe ({observe}) {
     const data = observe(<PaneSource />)
-    const panes = _.map(data, pane => ({
-      text: pane.name,
-      value: pane,
-      annotation: {type: 'icon', value: pane.path}
-    }))
+    const panes = _.chain(data)
+      .filter()
+      .filter('name')
+      .filter('path')
+      .map(pane => ({
+        text: pane.name,
+        value: pane,
+        annotation: {type: 'icon', value: pane.path}
+      }))
+      .value()
 
     return (
       <placeholder argument='preference pane'>

@@ -66,21 +66,6 @@
     "default": true,
     "separatorBelow": true
   },
-  "safariBookmarksHeader": {
-    "type": "header",
-    "label": "Safari Bookmarks",
-    "examples": [
-      "open [![](/Applications/Safari.app/Contents/Resources/compass.icns)Twitter](bookmark)",
-      "open [![](/Applications/Safari.app/Contents/Resources/compass.icns)Reddit](bookmark) in [](application)"
-    ]
-  },
-  "enableSafariBookmarks": {
-    "title": "Index Safari Bookmarks",
-    "type": "boolean",
-    "default": true,
-    "description": "If disabled, you will still be able to enter web addresses by specifying the URL",
-    "separatorBelow": true
-  },
   "spotlightHeader": {
     "type": "header",
     "label": "Files & Directories",

@@ -96,7 +96,11 @@ export const RunningApp = {
 
   describe ({observe, props}) {
     const data = observe(<RunningAppSource />)
-    const apps = _.map(data, app => ({text: app.name, value: app}))
+    const apps = _.chain(data)
+      .filter()
+      .filter('name')
+      .map(app => ({text: app.name, value: app}))
+      .value()
 
     return (
       <placeholder argument='application' suppressEmpty={props.suppressEmpty}>

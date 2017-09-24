@@ -41,19 +41,25 @@ export const ApplicationSource = {
       directories: props.applicationSearchDirectories
     })::map(data => {
       // Add in the alternativeNames, but remove .app and case-insensitive uniquify
-      const newData = _.flatMap(data, item => {
-        const allNames = _.chain([item.name])
-        .concat(item.alternativeNames || [])
-        .map(name => _.endsWith(_.toLower(name), '.app') ? name.slice(0, -4) : name)
-        .uniqBy(_.toLower)
-        .value()
+      const newData = _.chain(data)
+        .filter()
+        .filter('name')
+        .filter('bundleId')
+        .filter('path')
+        .flatMap(item => {
+          const allNames = _.chain([item.name])
+          .concat(item.alternativeNames || [])
+          .map(name => _.endsWith(_.toLower(name), '.app') ? name.slice(0, -4) : name)
+          .uniqBy(_.toLower)
+          .value()
 
-        return _.map(allNames, name => ({
-          bundleId: item.bundleId,
-          name,
-          path: item.path
-        }))
-      })
+          return _.map(allNames, name => ({
+            bundleId: item.bundleId,
+            name,
+            path: item.path
+          }))
+        })
+        .value()
 
       return newData
     })::mergeMap(async data => {

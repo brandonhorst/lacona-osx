@@ -21,6 +21,7 @@ function describeFiles (input, observe) {
     : []
 
   const items = _.chain(data)
+    .filter()
     .filter(({contentType}) => contentType !== 'public.folder')
     .filter('path')
     .map(({path}) => ({
