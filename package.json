@@ -1,6 +1,6 @@
 {
   "name": "lacona-osx",
-  "version": "1.2.5",
+  "version": "1.3.0",
   "description": "Lacona Extensions for OSX, tied into the global-context hosted API",
   "lacona": {
     "title": "macOS Integration",
